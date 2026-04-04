@@ -1,6 +1,6 @@
 # Brasil em Foco
 
-Protótipo desenvolvido para a disciplina de PISI 3 da UFRPE.
+Protótipo desenvolvido para as disciplinas de PISI 3 e DSI da UFRPE.
 
 ## Instalação e execução
 
