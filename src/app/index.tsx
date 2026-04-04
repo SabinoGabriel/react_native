@@ -1,28 +1,20 @@
-import { useRouter } from 'expo-router';
-import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import Colors from '../constants/Colors';
-import Typography from '../constants/Typography';
+import { Stack } from 'expo-router';
+import { Image, StyleSheet, View } from 'react-native';
 
-/**
- * Tela 1 – Splash Screen
- * Exibe a logo do aplicativo e redireciona para o Login.
- */
+import { Colors } from '../constants/Colors';
+
 export default function SplashScreen() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      router.replace('/login');
-    }, 2500);
-
-    return () => clearTimeout(timer);
-  }, [router]);
-
   return (
     <View style={styles.container}>
-      {/* Substitua pelo componente <Image> com a logo real em assets/ */}
-      <Text style={styles.titulo}>Brasil em Foco</Text>
+      <Stack.Screen options={{ headerShown: false }} />
+
+      <Image
+        source={{
+          uri: 'https://img.icons8.com/fluency/256/airplane-take-off.png',
+        }}
+        style={styles.logo}
+        resizeMode="contain"
+      />
     </View>
   );
 }
@@ -30,13 +22,12 @@ export default function SplashScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.verde,
-    alignItems: 'center',
+    backgroundColor: Colors.background,
     justifyContent: 'center',
+    alignItems: 'center',
   },
-  titulo: {
-    fontSize: Typography.fontSizeTitle,
-    fontWeight: Typography.fontWeightBold,
-    color: Colors.branco,
+  logo: {
+    width: 180,
+    height: 180,
   },
 });
