@@ -1,13 +1,12 @@
-/** Paleta de cores do Brasil em Foco */
-const Colors = {
-  verde: '#009C3B',
-  amarelo: '#FFDF00',
-  azul: '#002776',
-  branco: '#FFFFFF',
-  cinzaClaro: '#F5F5F5',
-  cinzaMedio: '#AAAAAA',
-  texto: '#1A1A1A',
-  erro: '#D32F2F',
-};
+export const Colors = {
+  background: '#171766',
+  primary: '#7974E7',
+  inputBackground: '#FFFFFF',
+  inputBorder: '#E4DFDF',
+  textWhite: '#FFFFFF',
+  textGray: '#747688',
+  textDark: '#120D26',
+  divisor: '#9D9898',
+} as const;
 
 export default Colors;

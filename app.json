@@ -29,7 +29,8 @@
         {
           "root": "./src/app"
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true
