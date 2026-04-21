@@ -1,7 +1,7 @@
 import { Link, Stack } from 'expo-router';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
-import { Colors } from '../constants/colors';
+import { Colors } from '../constants/Colors';
 
 export default function SplashScreen() {
   return (
@@ -17,11 +17,8 @@ export default function SplashScreen() {
       />
 
       <View style={styles.linksContainer}>
-        <Text style={styles.linksTitle}>Atalhos de teste</Text>
         <Link href="/login" style={styles.link}>Login</Link>
         <Link href="/cadastro" style={styles.link}>Cadastro</Link>
-        <Link href="/verificacao" style={styles.link}>Verificacao</Link>
-        <Link href="/redefinir" style={styles.link}>Redefinir senha</Link>
       </View>
     </View>
   );
