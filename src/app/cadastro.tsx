@@ -9,12 +9,14 @@ import {
   View,
 } from 'react-native';
 import CustomInput from '../components/ui/CustomInput';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import { Colors } from '../constants/Colors';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function CadastroScreen() {
+
   const router = useRouter();
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
@@ -24,6 +26,8 @@ export default function CadastroScreen() {
   const [erroEmail, setErroEmail] = useState('');
   const [erroSenha, setErroSenha] = useState('');
   const [erroConfirmar, setErroConfirmar] = useState('');
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [mostrarConfirmar, setMostrarConfirmar] = useState(false);
 
   function handleCadastro() {
     let valido = true;
@@ -100,9 +104,18 @@ export default function CadastroScreen() {
 
         <CustomInput
           placeholder="Senha"
-          secureTextEntry
+          secureTextEntry={!mostrarSenha}
           value={senha}
           onChangeText={setSenha}
+          right={
+            <Pressable onPress={() => setMostrarSenha((v) => !v)}>
+              <MaterialIcons
+                name={mostrarSenha ? 'visibility-off' : 'visibility'}
+                size={22}
+                color={Colors.textGray}
+              />
+            </Pressable>
+          }
         />
         {!!erroSenha && <Text style={styles.erro}>{erroSenha}</Text>}
 
@@ -110,9 +123,18 @@ export default function CadastroScreen() {
 
         <CustomInput
           placeholder="Confirmar senha"
-          secureTextEntry
+          secureTextEntry={!mostrarConfirmar}
           value={confirmarSenha}
           onChangeText={setConfirmarSenha}
+          right={
+            <Pressable onPress={() => setMostrarConfirmar((v) => !v)}>
+              <MaterialIcons
+                name={mostrarConfirmar ? 'visibility-off' : 'visibility'}
+                size={22}
+                color={Colors.textGray}
+              />
+            </Pressable>
+          }
         />
         {!!erroConfirmar && <Text style={styles.erro}>{erroConfirmar}</Text>}
       </View>

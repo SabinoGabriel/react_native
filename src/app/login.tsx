@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import CustomInput from '../components/ui/CustomInput';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import { Colors } from '../constants/Colors';
 
@@ -21,6 +22,7 @@ export default function LoginScreen() {
   const [senha, setSenha] = useState('');
   const [erroEmail, setErroEmail] = useState('');
   const [erroSenha, setErroSenha] = useState('');
+  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   const toastOpacity = useRef(new Animated.Value(0)).current;
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -92,9 +94,18 @@ export default function LoginScreen() {
 
         <CustomInput
           placeholder="Senha"
-          secureTextEntry
+          secureTextEntry={!mostrarSenha}
           value={senha}
           onChangeText={setSenha}
+          right={
+            <Pressable onPress={() => setMostrarSenha((v) => !v)}>
+              <MaterialIcons
+                name={mostrarSenha ? 'visibility-off' : 'visibility'}
+                size={22}
+                color={Colors.textGray}
+              />
+            </Pressable>
+          }
         />
         {!!erroSenha && <Text style={styles.erro}>{erroSenha}</Text>}
       </View>
