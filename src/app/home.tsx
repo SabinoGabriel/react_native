@@ -317,11 +317,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.inputBackground,
     borderRadius: rs(12),
     overflow: 'hidden',
+    padding: rs(8),
     marginLeft: rs(16),
   },
   cardImage: {
-    width: CARD_WIDTH,
-    height: CARD_IMAGE_HEIGHT,
+    width: '100%',
+    height: rs(118),
+    borderRadius: rs(8),
   },
   cardBody: {
     flex: 1,
