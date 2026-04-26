@@ -1,17 +1,16 @@
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import {
-  Animated,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Animated, Pressable } from 'react-native';
+import AuthLinkAction from '../components/auth/components/AuthLinkAction';
+import AuthScreenLayout from '../components/auth/components/AuthScreenLayout';
+import FormField from '../components/auth/components/FormField';
+import RememberOptionsRow from '../components/auth/components/RememberOptionsRow';
 import CustomInput from '../components/ui/CustomInput';
+import FloatingToast from '../components/ui/FloatingToast';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import { Colors } from '../constants/Colors';
+import { IconSize } from '../constants/Tokens';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -21,6 +20,8 @@ export default function LoginScreen() {
   const [senha, setSenha] = useState('');
   const [erroEmail, setErroEmail] = useState('');
   const [erroSenha, setErroSenha] = useState('');
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [lembrar, setLembrar] = useState(false);
 
   const toastOpacity = useRef(new Animated.Value(0)).current;
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -71,14 +72,14 @@ export default function LoginScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <AuthScreenLayout
+      title="Login"
+      primaryAction={<PrimaryButton title="Login" onPress={handleLogin} />}
+      footerAction={
+        <AuthLinkAction label="Criar conta" onPress={() => router.push('/cadastro')} />
+      }
     >
-      <Text style={styles.titulo}>Login</Text>
-      <Text style={styles.subtitulo}>Acesse sua conta</Text>
-
-      <View style={styles.formContainer}>
+      <FormField error={erroEmail}>
         <CustomInput
           placeholder="E-mail"
           keyboardType="email-address"
@@ -86,92 +87,33 @@ export default function LoginScreen() {
           value={email}
           onChangeText={setEmail}
         />
-        {!!erroEmail && <Text style={styles.erro}>{erroEmail}</Text>}
+      </FormField>
 
-        <View style={styles.inputSpacing} />
-
+      <FormField error={erroSenha}>
         <CustomInput
           placeholder="Senha"
-          secureTextEntry
+          secureTextEntry={!mostrarSenha}
           value={senha}
           onChangeText={setSenha}
+          right={
+            <Pressable onPress={() => setMostrarSenha((v) => !v)}>
+              <MaterialIcons
+                name={mostrarSenha ? 'visibility-off' : 'visibility'}
+                size={IconSize.md}
+                color={Colors.textGray}
+              />
+            </Pressable>
+          }
         />
-        {!!erroSenha && <Text style={styles.erro}>{erroSenha}</Text>}
-      </View>
+      </FormField>
 
-      <View style={styles.buttonContainer}>
-        <PrimaryButton title="Login" onPress={handleLogin} />
-      </View>
+      <RememberOptionsRow
+        rememberValue={lembrar}
+        onChangeRemember={setLembrar}
+        onPressForgot={() => router.push('/redefinir')}
+      />
 
-      <Pressable onPress={() => router.push('/cadastro')}>
-        <Text style={styles.link}>Criar conta</Text>
-      </Pressable>
-
-      <Animated.View style={[styles.toast, { opacity: toastOpacity }]}>
-        <Text style={styles.toastTexto}>Usuário ou senha inválidos</Text>
-      </Animated.View>
-    </KeyboardAvoidingView>
+      <FloatingToast message="Usuário ou senha inválidos." opacity={toastOpacity} />
+    </AuthScreenLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    paddingHorizontal: 24,
-    paddingTop: 96,
-    justifyContent: 'center',
-  },
-  titulo: {
-    fontSize: 32,
-    color: Colors.textWhite,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitulo: {
-    fontSize: 16,
-    color: Colors.textWhite,
-    textAlign: 'center',
-    marginBottom: 32,
-    opacity: 0.9,
-  },
-  formContainer: {
-    marginBottom: 22,
-  },
-  inputSpacing: {
-    height: 14,
-  },
-  buttonContainer: {
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  link: {
-    color: Colors.textWhite,
-    fontSize: 14,
-    textAlign: 'center',
-    marginTop: 8,
-    textDecorationLine: 'underline',
-  },
-  erro: {
-    color: '#FF4D4D',
-    fontSize: 12,
-    marginTop: 4,
-    marginLeft: 2,
-  },
-  toast: {
-    position: 'absolute',
-    bottom: 48,
-    alignSelf: 'center',
-    backgroundColor: '#1a1a4e',
-    borderWidth: 1,
-    borderColor: '#FF4D4D',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  toastTexto: {
-    color: '#FF4D4D',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-});

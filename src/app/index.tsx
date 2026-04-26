@@ -1,53 +1,17 @@
-import { Link, Stack } from 'expo-router';
-import { Image, StyleSheet, Text, View } from 'react-native';
-
-import { Colors } from '../constants/Colors';
+import { useEffect } from 'react';
+import { useRouter } from 'expo-router';
+import SplashLogoScreen from '../components/ui/SplashLogoScreen';
+import Logo from '../../assets/icons/logo.png';
 
 export default function SplashScreen() {
-  return (
-    <View style={styles.container}>
-      <Stack.Screen options={{ headerShown: false }} />
+  const router = useRouter();
 
-      <Image
-        source={{
-          uri: 'https://img.icons8.com/fluency/256/airplane-take-off.png',
-        }}
-        style={styles.logo}
-        resizeMode="contain"
-      />
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      router.replace('/login');
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [router]);
 
-      <View style={styles.linksContainer}>
-        <Link href="/login" style={styles.link}>Login</Link>
-        <Link href="/cadastro" style={styles.link}>Cadastro</Link>
-      </View>
-    </View>
-  );
+  return <SplashLogoScreen logoSource={Logo} />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logo: {
-    width: 180,
-    height: 180,
-  },
-  linksContainer: {
-    marginTop: 36,
-    alignItems: 'center',
-    gap: 10,
-  },
-  linksTitle: {
-    color: Colors.textWhite,
-    fontSize: 14,
-    opacity: 0.8,
-  },
-  link: {
-    color: Colors.textWhite,
-    fontSize: 16,
-    textDecorationLine: 'underline',
-  },
-});
