@@ -3,6 +3,7 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -34,20 +35,27 @@ export default function AuthScreenLayout({
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={styles.logoContainer}>
-        <Image source={require('../../../../assets/icons/logo.png')} style={styles.logo} />
-      </View>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.logoContainer}>
+          <Image source={require('../../../../assets/icons/logo.png')} style={styles.logo} />
+        </View>
 
-      <Text style={[styles.title, centered && styles.titleCentered]}>{title}</Text>
+        <Text style={[styles.title, centered && styles.titleCentered]}>{title}</Text>
 
-      {description ? (
-        <Text style={[styles.description, centered && styles.textCentered]}>{description}</Text>
-      ) : null}
+        {description ? (
+          <Text style={[styles.description, centered && styles.textCentered]}>{description}</Text>
+        ) : null}
 
-      <View style={styles.content}>{children}</View>
+        <View style={styles.content}>{children}</View>
 
-      {primaryAction ? <View style={styles.primaryAction}>{primaryAction}</View> : null}
-      {footerAction ? <View style={styles.footerAction}>{footerAction}</View> : null}
+        {primaryAction ? <View style={styles.primaryAction}>{primaryAction}</View> : null}
+        {footerAction ? <View style={styles.footerAction}>{footerAction}</View> : null}
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -57,8 +65,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
     paddingHorizontal: Spacing.pageHorizontal,
+  },
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     paddingTop: Spacing.pageTop,
     justifyContent: 'center',
+    paddingBottom: Spacing.lg,
   },
   logoContainer: {
     alignItems: 'center',
