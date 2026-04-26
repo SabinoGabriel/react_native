@@ -1,18 +1,14 @@
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Pressable } from 'react-native';
+import AuthLinkAction from '../components/auth/components/AuthLinkAction';
+import AuthScreenLayout from '../components/auth/components/AuthScreenLayout';
+import FormField from '../components/auth/components/FormField';
 import CustomInput from '../components/ui/CustomInput';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import { Colors } from '../constants/Colors';
+import { IconSize } from '../constants/Tokens';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -75,26 +71,18 @@ export default function CadastroScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <AuthScreenLayout
+      title="Cadastro"
+      primaryAction={<PrimaryButton title="Cadastrar" onPress={handleCadastro} />}
+      footerAction={
+        <AuthLinkAction label="Ja possui conta? Faca o Login" onPress={() => router.push('/login')} />
+      }
     >
-      <View style={styles.logoContainer}>
-        <Image source={require('../../assets/icons/logo.png')} style={styles.logo} />
-      </View>
+      <FormField error={erroNome}>
+        <CustomInput placeholder="Nome completo" value={nome} onChangeText={setNome} />
+      </FormField>
 
-      <Text style={styles.titulo}>Cadastro</Text>
-
-      <View style={styles.formContainer}>
-        <CustomInput
-          placeholder="Nome completo"
-          value={nome}
-          onChangeText={setNome}
-        />
-        {!!erroNome && <Text style={styles.erro}>{erroNome}</Text>}
-
-        <View style={styles.inputSpacing} />
-
+      <FormField error={erroEmail}>
         <CustomInput
           placeholder="E-mail"
           keyboardType="email-address"
@@ -102,10 +90,9 @@ export default function CadastroScreen() {
           value={email}
           onChangeText={setEmail}
         />
-        {!!erroEmail && <Text style={styles.erro}>{erroEmail}</Text>}
+      </FormField>
 
-        <View style={styles.inputSpacing} />
-
+      <FormField error={erroSenha}>
         <CustomInput
           placeholder="Senha"
           secureTextEntry={!mostrarSenha}
@@ -115,16 +102,15 @@ export default function CadastroScreen() {
             <Pressable onPress={() => setMostrarSenha((v) => !v)}>
               <MaterialIcons
                 name={mostrarSenha ? 'visibility-off' : 'visibility'}
-                size={22}
+                size={IconSize.md}
                 color={Colors.textGray}
               />
             </Pressable>
           }
         />
-        {!!erroSenha && <Text style={styles.erro}>{erroSenha}</Text>}
+      </FormField>
 
-        <View style={styles.inputSpacing} />
-
+      <FormField error={erroConfirmar}>
         <CustomInput
           placeholder="Confirmar senha"
           secureTextEntry={!mostrarConfirmar}
@@ -134,72 +120,13 @@ export default function CadastroScreen() {
             <Pressable onPress={() => setMostrarConfirmar((v) => !v)}>
               <MaterialIcons
                 name={mostrarConfirmar ? 'visibility-off' : 'visibility'}
-                size={22}
+                size={IconSize.md}
                 color={Colors.textGray}
               />
             </Pressable>
           }
         />
-        {!!erroConfirmar && <Text style={styles.erro}>{erroConfirmar}</Text>}
-      </View>
-
-      <View style={styles.buttonContainer}>
-        <PrimaryButton title="Cadastrar" onPress={handleCadastro} />
-      </View>
-
-      <Pressable onPress={() => router.push('/login')}>
-        <Text style={styles.link}>Ja possui conta? Faca o Login</Text>
-      </Pressable>
-    </KeyboardAvoidingView>
+      </FormField>
+    </AuthScreenLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    paddingHorizontal: 24,
-    paddingTop: 96,
-    justifyContent: 'center',
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  logo: {
-    width: 200,
-    height: 200,
-    resizeMode: 'contain',
-    marginBottom: 8,
-  },
-  titulo: {
-    fontSize: 32,
-    color: Colors.textWhite,
-    textAlign: 'left',
-    marginBottom: 20,
-    fontWeight: 'bold',
-  },
-  formContainer: {
-    marginBottom: 24,
-  },
-  inputSpacing: {
-    height: 14,
-  },
-  buttonContainer: {
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  link: {
-    color: Colors.textWhite,
-    fontSize: 14,
-    textAlign: 'center',
-    marginTop: 8,
-    textDecorationLine: 'underline',
-  },
-  erro: {
-    color: '#FF4D4D',
-    fontSize: 12,
-    marginTop: 4,
-    marginLeft: 2,
-  },
-});

@@ -16,6 +16,8 @@ export default function RootLayout() {
         <Stack.Screen name="login" />
         <Stack.Screen name="cadastro" />
         <Stack.Screen name="home" />
+        <Stack.Screen name="redefinir" />
+        <Stack.Screen name="verificacao" />
       </Stack>
     </>
   );

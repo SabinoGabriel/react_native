@@ -1,40 +1,84 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Colors } from '../../constants/Colors';
+import { Font, Radius, Shadow, Size } from '../../constants/Tokens';
 
 type PrimaryButtonProps = {
   title: string;
   onPress: () => void;
+  fullWidth?: boolean;
+  size?: 'md' | 'lg';
+  disabled?: boolean;
+  align?: 'center' | 'stretch';
 };
 
-export default function PrimaryButton({ title, onPress }: PrimaryButtonProps) {
+export default function PrimaryButton({
+  title,
+  onPress,
+  fullWidth = true,
+  size = 'md',
+  disabled = false,
+  align = 'center',
+}: PrimaryButtonProps) {
   return (
-    <Pressable style={styles.button} onPress={onPress}>
-      <Text style={styles.text}>{title}</Text>
-    </Pressable>
+    <View style={[styles.container, align === 'stretch' && styles.containerStretch]}>
+      <Pressable
+        style={({ pressed }) => [
+          styles.button,
+          fullWidth && styles.buttonFullWidth,
+          size === 'lg' && styles.buttonLarge,
+          disabled && styles.buttonDisabled,
+          pressed && !disabled && styles.buttonPressed,
+        ]}
+        onPress={onPress}
+        disabled={disabled}
+      >
+        <Text style={[styles.text, disabled && styles.textDisabled]}>{title}</Text>
+      </Pressable>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  button: {
+  container: {
     width: '100%',
-    maxWidth: 271,
-    height: 58,
-    borderRadius: 15,
+    alignItems: 'center',
+  },
+  containerStretch: {
+    alignItems: 'stretch',
+  },
+  button: {
+    width: Size.buttonMaxWidth,
+    maxWidth: '100%',
+    height: Size.buttonHeight,
+    borderRadius: Radius.lg,
     backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 3,
+    ...Shadow.button,
+  },
+  buttonFullWidth: {
+    width: '100%',
+    maxWidth: Size.buttonMaxWidth,
+  },
+  buttonLarge: {
+    height: Math.round(Size.buttonHeight * 1.08),
+  },
+  buttonDisabled: {
+    opacity: 0.55,
+  },
+  buttonPressed: {
+    opacity: 0.9,
   },
   text: {
-    fontSize: 16,
+    fontSize: Font.bodyMd,
     color: Colors.textWhite,
     textTransform: 'uppercase',
     letterSpacing: 1,
+    fontWeight: '600',
+  },
+  textDisabled: {
+    opacity: 0.95,
   },
 });
