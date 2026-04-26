@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -8,6 +9,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import CustomInput from '../components/ui/CustomInput';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import { Colors } from '../constants/Colors';
@@ -24,32 +26,34 @@ export default function CadastroScreen() {
   const [erroEmail, setErroEmail] = useState('');
   const [erroSenha, setErroSenha] = useState('');
   const [erroConfirmar, setErroConfirmar] = useState('');
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [mostrarConfirmar, setMostrarConfirmar] = useState(false);
 
   function handleCadastro() {
     let valido = true;
 
     if (!nome.trim()) {
-      setErroNome('O nome é obrigatório.');
+      setErroNome('O nome e obrigatorio.');
       valido = false;
     } else {
       setErroNome('');
     }
 
     if (!email.trim()) {
-      setErroEmail('O e-mail é obrigatório.');
+      setErroEmail('O e-mail e obrigatorio.');
       valido = false;
     } else if (!EMAIL_REGEX.test(email.trim())) {
-      setErroEmail('Informe um e-mail válido.');
+      setErroEmail('Informe um e-mail valido.');
       valido = false;
     } else {
       setErroEmail('');
     }
 
     if (!senha) {
-      setErroSenha('A senha é obrigatória.');
+      setErroSenha('A senha e obrigatoria.');
       valido = false;
     } else if (senha.length < 6) {
-      setErroSenha('A senha deve ter no mínimo 6 caracteres.');
+      setErroSenha('A senha deve ter no minimo 6 caracteres.');
       valido = false;
     } else {
       setErroSenha('');
@@ -59,7 +63,7 @@ export default function CadastroScreen() {
       setErroConfirmar('Confirme a sua senha.');
       valido = false;
     } else if (confirmarSenha !== senha) {
-      setErroConfirmar('As senhas não coincidem.');
+      setErroConfirmar('As senhas nao coincidem.');
       valido = false;
     } else {
       setErroConfirmar('');
@@ -75,7 +79,11 @@ export default function CadastroScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <Text style={styles.titulo}>Criar Conta</Text>
+      <View style={styles.logoContainer}>
+        <Image source={require('../../assets/icons/logo.png')} style={styles.logo} />
+      </View>
+
+      <Text style={styles.titulo}>Cadastro</Text>
 
       <View style={styles.formContainer}>
         <CustomInput
@@ -100,9 +108,18 @@ export default function CadastroScreen() {
 
         <CustomInput
           placeholder="Senha"
-          secureTextEntry
+          secureTextEntry={!mostrarSenha}
           value={senha}
           onChangeText={setSenha}
+          right={
+            <Pressable onPress={() => setMostrarSenha((v) => !v)}>
+              <MaterialIcons
+                name={mostrarSenha ? 'visibility-off' : 'visibility'}
+                size={22}
+                color={Colors.textGray}
+              />
+            </Pressable>
+          }
         />
         {!!erroSenha && <Text style={styles.erro}>{erroSenha}</Text>}
 
@@ -110,9 +127,18 @@ export default function CadastroScreen() {
 
         <CustomInput
           placeholder="Confirmar senha"
-          secureTextEntry
+          secureTextEntry={!mostrarConfirmar}
           value={confirmarSenha}
           onChangeText={setConfirmarSenha}
+          right={
+            <Pressable onPress={() => setMostrarConfirmar((v) => !v)}>
+              <MaterialIcons
+                name={mostrarConfirmar ? 'visibility-off' : 'visibility'}
+                size={22}
+                color={Colors.textGray}
+              />
+            </Pressable>
+          }
         />
         {!!erroConfirmar && <Text style={styles.erro}>{erroConfirmar}</Text>}
       </View>
@@ -122,7 +148,7 @@ export default function CadastroScreen() {
       </View>
 
       <Pressable onPress={() => router.push('/login')}>
-        <Text style={styles.link}>Já possui conta? Faça o Login</Text>
+        <Text style={styles.link}>Ja possui conta? Faca o Login</Text>
       </Pressable>
     </KeyboardAvoidingView>
   );
@@ -136,11 +162,22 @@ const styles = StyleSheet.create({
     paddingTop: 96,
     justifyContent: 'center',
   },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  logo: {
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
+    marginBottom: 8,
+  },
   titulo: {
     fontSize: 32,
     color: Colors.textWhite,
-    textAlign: 'center',
-    marginBottom: 32,
+    textAlign: 'left',
+    marginBottom: 20,
+    fontWeight: 'bold',
   },
   formContainer: {
     marginBottom: 24,
