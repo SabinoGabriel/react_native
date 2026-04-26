@@ -77,7 +77,7 @@ export default function HomeScreenContent({
           emptyText="Nenhuma cidade nesta categoria."
         />
 
-        <HomeSection title="Ultimas visualizacoes" data={ultimas} />
+        <HomeSection title="Últimas visualizações" data={ultimas} />
       </ScrollView>
 
       <BottomNav activeKey={navAtivo} onChange={onChangeNav} bottomInset={insets.bottom} />

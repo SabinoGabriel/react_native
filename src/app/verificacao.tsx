@@ -14,16 +14,16 @@ export default function VerificacaoScreen() {
   }
 
   function handleReenviar() {
-    console.warn('Reenvio de codigo ainda nao implementado.');
+    console.warn('Reenvio de código ainda não implementado.');
   }
 
   return (
     <AuthScreenLayout
-      title="Verificacao"
+      title="Verificação"
       titleAlign="center"
-      description="Digite o codigo de 6 digitos enviado para o seu e-mail."
+      description="Digite o código de 6 dígitos enviado para o seu e-mail."
       primaryAction={<PrimaryButton title="Verificar" onPress={handleVerificar} />}
-      footerAction={<AuthLinkAction label="Reenviar codigo" onPress={handleReenviar} />}
+      footerAction={<AuthLinkAction label="Reenviar código" onPress={handleReenviar} />}
     >
       <OtpInputRow value={codigo} onChange={setCodigo} />
     </AuthScreenLayout>

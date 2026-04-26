@@ -29,27 +29,27 @@ export default function CadastroScreen() {
     let valido = true;
 
     if (!nome.trim()) {
-      setErroNome('O nome e obrigatorio.');
+      setErroNome('O nome é obrigatório.');
       valido = false;
     } else {
       setErroNome('');
     }
 
     if (!email.trim()) {
-      setErroEmail('O e-mail e obrigatorio.');
+      setErroEmail('O e-mail é obrigatório.');
       valido = false;
     } else if (!EMAIL_REGEX.test(email.trim())) {
-      setErroEmail('Informe um e-mail valido.');
+      setErroEmail('Informe um e-mail válido.');
       valido = false;
     } else {
       setErroEmail('');
     }
 
     if (!senha) {
-      setErroSenha('A senha e obrigatoria.');
+      setErroSenha('A senha é obrigatória.');
       valido = false;
     } else if (senha.length < 6) {
-      setErroSenha('A senha deve ter no minimo 6 caracteres.');
+      setErroSenha('A senha deve ter no mínimo 6 caracteres.');
       valido = false;
     } else {
       setErroSenha('');
@@ -59,7 +59,7 @@ export default function CadastroScreen() {
       setErroConfirmar('Confirme a sua senha.');
       valido = false;
     } else if (confirmarSenha !== senha) {
-      setErroConfirmar('As senhas nao coincidem.');
+      setErroConfirmar('As senhas não coincidem.');
       valido = false;
     } else {
       setErroConfirmar('');
@@ -75,7 +75,7 @@ export default function CadastroScreen() {
       title="Cadastro"
       primaryAction={<PrimaryButton title="Cadastrar" onPress={handleCadastro} />}
       footerAction={
-        <AuthLinkAction label="Ja possui conta? Faca o Login" onPress={() => router.push('/login')} />
+        <AuthLinkAction label="Já possui conta? Faça o login" onPress={() => router.push('/login')} />
       }
     >
       <FormField error={erroNome}>

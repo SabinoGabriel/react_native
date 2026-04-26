@@ -26,7 +26,7 @@ export default function RememberOptionsRow({
         <Text style={styles.switchLabel}>Lembrar de mim</Text>
       </View>
       <Pressable onPress={onPressForgot}>
-        <Text style={styles.forgot}>Esqueceu a senha?</Text>
+        <Text style={styles.forgot}>Esqueceu sua senha?</Text>
       </Pressable>
     </View>
   );

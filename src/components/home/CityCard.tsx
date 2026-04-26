@@ -28,7 +28,7 @@ export default function CityCard({ cidade }: CityCardProps) {
           {cidade.regiao}
         </Text>
         <Text style={[styles.description, { fontSize: r.font(12) }]} numberOfLines={2}>
-          Descubra pontos turisticos, cultura local e experiencias unicas.
+          Descubra pontos turísticos, cultura local e experiências únicas.
         </Text>
         <Text style={[styles.rating, { fontSize: r.font(12) }]}>* {cidade.avaliacao.toFixed(1)}</Text>
       </View>

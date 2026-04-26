@@ -46,17 +46,17 @@ export default function LoginScreen() {
     const emailValido = EMAIL_REGEX.test(email.trim());
 
     if (!email.trim()) {
-      setErroEmail('O e-mail e obrigatorio.');
+      setErroEmail('O e-mail é obrigatório.');
       valido = false;
     } else if (!emailValido) {
-      setErroEmail('Informe um e-mail valido.');
+      setErroEmail('Informe um e-mail válido.');
       valido = false;
     } else {
       setErroEmail('');
     }
 
     if (!senha) {
-      setErroSenha('A senha e obrigatoria.');
+      setErroSenha('A senha é obrigatória.');
       valido = false;
     } else if (emailValido && senha.length < 6) {
       setErroSenha('');
@@ -113,7 +113,7 @@ export default function LoginScreen() {
         onPressForgot={() => router.push('/redefinir')}
       />
 
-      <FloatingToast message="Usuario ou senha invalidos" opacity={toastOpacity} />
+      <FloatingToast message="Usuário ou senha inválidos." opacity={toastOpacity} />
     </AuthScreenLayout>
   );
 }

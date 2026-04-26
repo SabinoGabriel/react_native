@@ -17,9 +17,9 @@ export default function RedefinirScreen() {
     <AuthScreenLayout
       title="Redefinir Senha"
       titleAlign="center"
-      description="Informe seu e-mail e enviaremos um codigo para redefinir sua senha."
-      primaryAction={<PrimaryButton title="Enviar codigo" onPress={handleEnviar} />}
-      footerAction={<AuthLinkAction label="Voltar ao Login" onPress={() => router.push('/login')} />}
+      description="Informe seu e-mail e enviaremos um código para redefinir sua senha."
+      primaryAction={<PrimaryButton title="Enviar código" onPress={handleEnviar} />}
+      footerAction={<AuthLinkAction label="Voltar ao login" onPress={() => router.push('/login')} />}
     >
       <CustomInput
         placeholder="E-mail"
