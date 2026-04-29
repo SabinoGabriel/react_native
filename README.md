@@ -143,7 +143,7 @@ Regra prática:
 6. Validar com:
 
 ```bash
-./node_modules/.bin/tsc --noEmit
+npx tsc --noEmit
 ```
 
 ## Como alterar página existente sem quebrar o padrão
