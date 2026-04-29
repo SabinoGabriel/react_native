@@ -64,6 +64,7 @@ O projeto usa Expo Router com separação clara entre rota, lógica e apresenta�
 Dsi_repository/
 ├── assets/
 │   ├── icons/
+│   ├── images/
 │   └── README.md
 ├── src/
 │   ├── app/                    # Rotas e telas (Expo Router)
