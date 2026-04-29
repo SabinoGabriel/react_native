@@ -1,13 +1,12 @@
-
 # Brasil em Foco
 
 Protótipo desenvolvido para as disciplinas de PISI 3 e DSI da UFRPE.
 
 ## Objetivo deste guia
 
-Este guia foi criado para ajudar novos desenvolvedores a entenderem a estrutura do projeto, boas práticas e como contribuir sem bagunçar o código. Siga as orientações para evitar erros comuns de organização e facilitar a manutenção.
+Este guia ajuda novos desenvolvedores a entender a arquitetura atual do projeto, manter o padrão visual e contribuir sem quebrar a organização.
 
-## Pre-requisitos
+## Pré-requisitos
 
 1. Git instalado
 2. Node.js LTS (recomendado: 20.x)
@@ -48,60 +47,123 @@ npm run ios     # Roda no emulador iOS
 npm run web     # Roda no navegador
 ```
 
-## Estrutura do projeto
+## Arquitetura atual
 
-O projeto segue uma estrutura modular e escalável. Cada pasta tem um propósito claro. **Não coloque arquivos soltos fora do lugar!**
+O projeto usa Expo Router com separação clara entre rota, lógica e apresentação:
 
+- `src/app`: páginas/rotas (estado, validação e navegação)
+- `src/components`: apresentação e blocos reutilizáveis por domínio
+- `src/constants`: design tokens e constantes visuais
+- `src/utils`: utilitários de responsividade
+- `src/data`: dados mockados
+- `src/types`: declarações de tipos globais (ex.: assets)
 
-```
+### Estrutura do projeto
+
+```text
 Dsi_repository/
-├── assets/                # Imagens, ícones, fontes
-│   ├── images/
+├── assets/
 │   ├── icons/
-│   └── fonts/
+│   ├── images/
+│   └── README.md
 ├── src/
-│   ├── app/               # Rotas e telas (Expo Router)
-│   ├── components/        # Componentes reutilizáveis
-│   │   ├── ui/            # Componentes genéricos (ex: PrimaryButton)
-│   │   ├── auth/          # Componentes de autenticação
-│   │   └── home/          # Componentes da home
-│   ├── constants/         # Constantes de cor, tipografia, etc
-│   ├── data/              # Dados mockados
-│   ├── hooks/             # Custom hooks
-│   ├── theme/             # Temas, estilos globais
-│   ├── utils/             # Funções utilitárias
-│   ├── lib/               # Wrappers de libs externas
-│   ├── context/           # React Contexts globais
-│   └── types/             # Tipos TypeScript globais
+│   ├── app/                    # Rotas e telas (Expo Router)
+│   │   ├── index.tsx           # Splash
+│   │   ├── login.tsx
+│   │   ├── cadastro.tsx
+│   │   ├── redefinir.tsx
+│   │   ├── verificacao.tsx
+│   │   ├── home.tsx
+│   │   └── _layout.tsx         # Stack de navegação
+│   ├── components/
+│   │   ├── ui/                 # Componentes genéricos
+│   │   ├── auth/components/    # Blocos de autenticação
+│   │   └── home/               # Blocos da home
+│   ├── constants/
+│   │   ├── Colors.ts
+│   │   ├── Tokens.ts
+│   │   └── Typography.ts
+│   ├── data/
+│   │   └── mockCidades.ts
+│   ├── types/
+│   │   └── assets.d.ts
+│   └── utils/
+│       └── responsive.ts
 ├── app.json
 ├── package.json
-└── ...
+└── tsconfig.json
 ```
 
-### Dicas para não errar na organização
+## Padrão de implementação das telas
 
-- **Componentes genéricos** (usados em vários lugares): coloque em `src/components/ui`.
-- **Componentes de uma feature** (ex: autenticação): coloque em `src/components/auth`.
-- **Telas**: sempre em `src/app`.
-- **Dados mockados**: sempre em `src/data`.
-- **Constantes**: sempre em `src/constants`.
-- **Nunca** misture lógica de negócio, componentes e dados em uma mesma pasta.
+As páginas em `src/app` devem ser "lógica-only":
 
-### Exemplo de importação correta
+- controlam estado (`useState`)
+- executam validações e handlers
+- fazem navegação (`router.push`, `router.replace`)
+- delegam layout e estilo para componentes em `src/components`
 
-```tsx
-import PrimaryButton from '../components/ui/PrimaryButton';
-import CustomInput from '../components/ui/CustomInput';
+Exemplo do padrão:
+
+- `login.tsx` e `cadastro.tsx` usam `AuthScreenLayout`, `FormField`, `CustomInput` e `PrimaryButton`
+- `home.tsx` mantém estado de busca/navegação e delega UI para `HomeScreenContent`
+
+## Design system e responsividade
+
+### Tokens
+
+Todo ajuste visual deve priorizar tokens em `src/constants/Tokens.ts`:
+
+- `Spacing`
+- `Radius`
+- `Size`
+- `IconSize`
+- `Font`
+- `Shadow`
+
+### Responsividade
+
+A base de responsividade está em `src/utils/responsive.ts`:
+
+- `scale`, `vScale`, `mScale`, `fontScale`
+- `useResponsive()` para ajustes por dimensão em tempo real
+
+Regra prática:
+
+- Evite valores fixos soltos nas páginas
+- Em componentes de layout dinâmico (como `home`), prefira `useResponsive()`
+- Em componentes de UI base, priorize tokens do tema
+
+## Como criar nova página
+
+1. Criar arquivo em `src/app/nova-rota.tsx`
+2. Implementar apenas lógica da tela
+3. Criar componente de apresentação em `src/components/<feature>/...`
+4. Reutilizar `CustomInput`, `PrimaryButton` e blocos existentes quando possível
+5. Registrar no stack em `src/app/_layout.tsx` se necessário
+6. Validar com:
+
+```bash
+npx tsc --noEmit
 ```
 
+## Como alterar página existente sem quebrar o padrão
+
+1. Ajuste regra de negócio na página (`src/app`)
+2. Ajuste visual no componente (`src/components`)
+3. Se houver repetição, extraia componente reutilizável
+4. Se o ajuste for global (tamanho, espaçamento, tipografia), altere tokens
+5. Teste os fluxos principais:
+- splash -> login
+- login -> home
+- cadastro -> home
+- redefinir -> verificacao
 
 ## Troubleshooting rápido
 
 ### Erro: package.json não encontrado
 
-Se aparecer algo como `expected package.json path ... does not exist`, você está na pasta errada.
-
-Entre na pasta correta e rode de novo:
+Você provavelmente está na pasta errada. Entre no diretório do projeto:
 
 ```bash
 cd Dsi_repository
@@ -116,11 +178,11 @@ npx expo start --clear
 
 ### Expo Go não conecta ao projeto
 
-- Certifique-se de que o computador e o celular estão na **mesma rede Wi-Fi**. Se estiverem em redes diferentes (ex: computador no cabo ou Wi-Fi 5GHz e celular no 2.4GHz), o app pode não encontrar o servidor.
-- Se necessário, reinicie o Expo Go e o servidor Expo.
-- Verifique se há firewall ou VPN bloqueando a conexão.
+- Verifique se celular e computador estão na mesma rede
+- Reinicie Expo Go e o servidor Expo
+- Verifique firewall/VPN
 
-## Versões do projeto (referência)
+## Versões de referência
 
 - expo: `~54.0.0`
 - expo-router: `~6.0.23`
