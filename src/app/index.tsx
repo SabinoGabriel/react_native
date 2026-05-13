@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
-import SplashLogoScreen from '../components/ui/SplashLogoScreen';
 import Logo from '../../assets/icons/logo.png';
+import SplashLogoScreen from '../components/ui/SplashLogoScreen';
 
 export default function SplashScreen() {
   const router = useRouter();
@@ -13,5 +13,7 @@ export default function SplashScreen() {
     return () => clearTimeout(timer);
   }, [router]);
 
-  return <SplashLogoScreen logoSource={Logo} />;
+  const logoSource = Logo;
+
+  return <SplashLogoScreen logoSource={logoSource} />;
 }

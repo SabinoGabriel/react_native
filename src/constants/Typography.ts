@@ -1,17 +1,13 @@
-import { Font } from './Tokens';
-
 /** Tipografia base do Brasil em Foco */
-export const Typography = {
-  fontSizeSmall: Font.caption,
-  fontSizeBase: Font.body,
-  fontSizeMedium: Font.bodyMd,
-  fontSizeLarge: Font.titleLg,
-  fontSizeTitle: Font.titleXl,
-  fontSizeDisplay: Font.titleDisplay,
+const Typography = {
+  fontSizeSmall: 12,
+  fontSizeBase: 14,
+  fontSizeMedium: 16,
+  fontSizeLarge: 20,
+  fontSizeTitle: 28,
 
   fontWeightRegular: '400' as const,
   fontWeightMedium: '500' as const,
-  fontWeightSemiBold: '600' as const,
   fontWeightBold: '700' as const,
 };
 

@@ -2,29 +2,15 @@
 import React from 'react';
 import { StyleProp, StyleSheet, TextInput, TextInputProps, View, ViewStyle } from 'react-native';
 import { Colors } from '../../constants/Colors';
-import { Font, Radius, Size, Spacing } from '../../constants/Tokens';
 
 type CustomInputProps = TextInputProps & {
   right?: React.ReactNode;
   containerStyle?: StyleProp<ViewStyle>;
-  size?: 'sm' | 'md' | 'lg';
 };
 
-const heightBySize = {
-  sm: Size.inputHeightSm,
-  md: Size.inputHeightMd,
-  lg: Size.inputHeightLg,
-} as const;
-
-export default function CustomInput({
-  right,
-  style,
-  containerStyle,
-  size = 'md',
-  ...props
-}: CustomInputProps) {
+export default function CustomInput({ right, style, containerStyle, ...props }: CustomInputProps) {
   return (
-    <View style={[styles.inputWrapper, { height: heightBySize[size] }, containerStyle]}>
+    <View style={[styles.inputWrapper, containerStyle]}>
       <TextInput
         placeholderTextColor={Colors.textGray}
         style={[styles.input, style]}
@@ -39,21 +25,22 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: Radius.md,
+    height: 56,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: Colors.inputBorder,
     backgroundColor: Colors.inputBackground,
-    paddingHorizontal: Spacing.xs,
+    paddingHorizontal: 8,
   },
   input: {
     flex: 1,
     color: Colors.textGray,
-    fontSize: Font.body,
-    paddingHorizontal: Spacing.xs,
+    fontSize: 14,
+    paddingHorizontal: 8,
     height: '100%',
   },
   right: {
-    marginLeft: Spacing.xxs,
+    marginLeft: 4,
     justifyContent: 'center',
     alignItems: 'center',
     height: '100%',

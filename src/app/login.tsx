@@ -1,16 +1,21 @@
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Pressable } from 'react-native';
-import AuthLinkAction from '../components/auth/components/AuthLinkAction';
-import AuthScreenLayout from '../components/auth/components/AuthScreenLayout';
-import FormField from '../components/auth/components/FormField';
-import RememberOptionsRow from '../components/auth/components/RememberOptionsRow';
-import CustomInput from '../components/ui/CustomInput';
+import {
+  Animated,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+} from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FloatingToast from '../components/ui/FloatingToast';
+import CustomInput from '../components/ui/CustomInput';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import { Colors } from '../constants/Colors';
-import { IconSize } from '../constants/Tokens';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -72,14 +77,17 @@ export default function LoginScreen() {
   }
 
   return (
-    <AuthScreenLayout
-      title="Login"
-      primaryAction={<PrimaryButton title="Login" onPress={handleLogin} />}
-      footerAction={
-        <AuthLinkAction label="Criar conta" onPress={() => router.push('/cadastro')} />
-      }
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <FormField error={erroEmail}>
+      <View style={styles.logoContainer}>
+        <Image source={require('../../assets/icons/logo.png')} style={styles.logo} />
+      </View>
+
+      <Text style={styles.titulo}>Login</Text>
+
+      <View style={styles.formContainer}>
         <CustomInput
           placeholder="E-mail"
           keyboardType="email-address"
@@ -87,9 +95,10 @@ export default function LoginScreen() {
           value={email}
           onChangeText={setEmail}
         />
-      </FormField>
+        {!!erroEmail && <Text style={styles.erro}>{erroEmail}</Text>}
 
-      <FormField error={erroSenha}>
+        <View style={styles.inputSpacing} />
+
         <CustomInput
           placeholder="Senha"
           secureTextEntry={!mostrarSenha}
@@ -99,21 +108,111 @@ export default function LoginScreen() {
             <Pressable onPress={() => setMostrarSenha((v) => !v)}>
               <MaterialIcons
                 name={mostrarSenha ? 'visibility-off' : 'visibility'}
-                size={IconSize.md}
+                size={22}
                 color={Colors.textGray}
               />
             </Pressable>
           }
         />
-      </FormField>
+        {!!erroSenha && <Text style={styles.erro}>{erroSenha}</Text>}
 
-      <RememberOptionsRow
-        rememberValue={lembrar}
-        onChangeRemember={setLembrar}
-        onPressForgot={() => router.push('/redefinir')}
-      />
+        <View style={styles.switchRow}>
+          <View style={styles.switchContainer}>
+            <Switch
+              value={lembrar}
+              onValueChange={setLembrar}
+              trackColor={{ false: '#767577', true: Colors.primary }}
+              thumbColor={lembrar ? Colors.textWhite : '#f4f3f4'}
+            />
+            <Text style={styles.switchLabel}>Lembrar de mim</Text>
+          </View>
+          <Pressable>
+            <Text style={styles.forgot}>Esqueceu a senha?</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      <View style={styles.buttonContainer}>
+        <PrimaryButton title="Login" onPress={handleLogin} />
+      </View>
+
+      <Pressable onPress={() => router.push('/cadastro')}>
+        <Text style={styles.link}>Criar conta</Text>
+      </Pressable>
 
       <FloatingToast message="Usuário ou senha inválidos." opacity={toastOpacity} />
-    </AuthScreenLayout>
+    </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    paddingHorizontal: 24,
+    paddingTop: 96,
+    justifyContent: 'center',
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  logo: {
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
+    marginBottom: 8,
+  },
+  titulo: {
+    fontSize: 32,
+    color: Colors.textWhite,
+    textAlign: 'left',
+    marginBottom: 20,
+    fontWeight: 'bold',
+  },
+  formContainer: {
+    marginBottom: 22,
+  },
+  inputSpacing: {
+    height: 14,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  switchLabel: {
+    color: Colors.textWhite,
+    marginLeft: 8,
+    fontSize: 14,
+  },
+  forgot: {
+    color: Colors.textWhite,
+    fontSize: 14,
+    textDecorationLine: 'underline',
+    opacity: 0.8,
+  },
+  buttonContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  link: {
+    color: Colors.textWhite,
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 8,
+    textDecorationLine: 'underline',
+  },
+  erro: {
+    color: '#FF4D4D',
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 2,
+  },
+});

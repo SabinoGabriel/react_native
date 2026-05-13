@@ -15,26 +15,23 @@ export default function HomeScreen() {
       setResultadoBusca(null);
       return;
     }
-
     const todas = [...cidadesRecomendadas, ...ultimasVisualizadas];
-    setResultadoBusca(todas.filter((cidade) => cidade.nome.toLowerCase().includes(termo)));
+    setResultadoBusca(todas.filter((c) => c.nome.toLowerCase().includes(termo)));
   }
 
-  function handleBuscaChange(value: string) {
-    setBusca(value);
-    if (!value.trim()) {
-      setResultadoBusca(null);
-    }
-  }
+  const recomendadasFiltradas = cidadesRecomendadas;
 
   return (
     <HomeScreenContent
       busca={busca}
       resultadoBusca={resultadoBusca}
-      recomendadas={cidadesRecomendadas}
+      recomendadas={recomendadasFiltradas}
       ultimas={ultimasVisualizadas}
       navAtivo={navAtivo}
-      onChangeBusca={handleBuscaChange}
+      onChangeBusca={(t) => {
+        setBusca(t);
+        if (!t.trim()) setResultadoBusca(null);
+      }}
       onSubmitBusca={handleBusca}
       onChangeNav={setNavAtivo}
     />
