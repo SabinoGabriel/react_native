@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'; // aria-label
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { Colors } from '../../constants/Colors';
 import { Cidade } from '../../data/mockCidades';

@@ -6,6 +6,8 @@ export type Cidade = {
   avaliacao: number;
   categoria: string;
   imagemUrl: string;
+  latitude?: number;
+  longitude?: number;
 };
 
 export const categorias = ['Todas', 'Praia', 'Cultura', 'Gastronomia', 'Natureza', 'Histórico'];
@@ -19,6 +21,8 @@ export const cidadesRecomendadas: Cidade[] = [
     avaliacao: 4.8,
     categoria: 'Praia',
     imagemUrl: 'https://picsum.photos/seed/Florianopolis/300/200',
+    latitude: -27.5954,
+    longitude: -48.5480,
   },
   {
     id: '2',
@@ -28,6 +32,8 @@ export const cidadesRecomendadas: Cidade[] = [
     avaliacao: 4.7,
     categoria: 'Cultura',
     imagemUrl: 'https://picsum.photos/seed/Salvador/300/200',
+    latitude: -12.9714,
+    longitude: -38.5014,
   },
   {
     id: '3',
@@ -37,6 +43,8 @@ export const cidadesRecomendadas: Cidade[] = [
     avaliacao: 4.9,
     categoria: 'Natureza',
     imagemUrl: 'https://picsum.photos/seed/Gramado/300/200',
+    latitude: -29.3746,
+    longitude: -50.8764,
   },
   {
     id: '4',
@@ -46,6 +54,8 @@ export const cidadesRecomendadas: Cidade[] = [
     avaliacao: 4.8,
     categoria: 'Histórico',
     imagemUrl: 'https://picsum.photos/seed/OuroPreto/300/200',
+    latitude: -20.3856,
+    longitude: -43.5035,
   },
   {
     id: '5',
@@ -55,6 +65,8 @@ export const cidadesRecomendadas: Cidade[] = [
     avaliacao: 4.6,
     categoria: 'Praia',
     imagemUrl: 'https://picsum.photos/seed/Fortaleza/300/200',
+    latitude: -3.7172,
+    longitude: -38.5433,
   },
   {
     id: '6',
@@ -64,6 +76,8 @@ export const cidadesRecomendadas: Cidade[] = [
     avaliacao: 4.5,
     categoria: 'Gastronomia',
     imagemUrl: 'https://picsum.photos/seed/SaoPaulo/300/200',
+    latitude: -23.5505,
+    longitude: -46.6333,
   },
 ];
 
