@@ -3,6 +3,15 @@
 
 Protótipo desenvolvido para as disciplinas de PISI 3 e DSI da UFRPE.
 
+## Sobre o Projeto
+
+**Brasil em Foco** é um aplicativo mobile de turismo e exploração criado em React Native (usando Expo Router). O objetivo principal é permitir que os usuários naveguem por diferentes cidades, visualizem pontos turísticos e roteiros sugeridos, interajam criando avaliações e gerenciem seus destinos favoritos. 
+
+Principais tecnologias e features:
+- **Autenticação & Banco de Dados**: Integração com **Firebase** para login, gestão do perfil do usuário e armazenamento de dados globais (Cidades, Roteiros) e individuais (Avaliações).
+- **Performance de Cache e UX**: Uso do **TanStack Query (React Query)** para chamadas rápidas ao Firebase, com atualizações otimistas na UI (Optimistic Updates) para que os comentários e interações pareçam instantâneos.
+- **Navegação Moderna**: App totalmente estruturado utilizando o **Expo Router** para roteamento nativo baseado em pastas.
+
 ## Objetivo deste guia
 
 Este guia foi criado para ajudar novos desenvolvedores a entenderem a estrutura do projeto, boas práticas e como contribuir sem bagunçar o código. Siga as orientações para evitar erros comuns de organização e facilitar a manutenção.

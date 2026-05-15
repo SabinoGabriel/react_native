@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'; // aria-label
 import { StyleSheet, View } from 'react-native';
 import { Spacing } from '../../../constants/Tokens';
 import FormErrorText from './FormErrorText';
