@@ -1,5 +1,6 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../constants/Colors';
 import { Radius } from '../../constants/Tokens';
 import { Cidade } from '../../data/mockCidades';
@@ -11,6 +12,7 @@ type CityCardProps = {
 
 export default function CityCard({ cidade }: CityCardProps) {
   const r = useResponsive();
+  const router = useRouter();
   const cardWidth = clamp(Math.round(r.width * 0.43), r.scaleX(142), r.scaleX(188));
   const cardHeight = clamp(Math.round(cardWidth * 1.58), r.scaleY(220), r.scaleY(286));
   const imageHeight = Math.round(cardHeight * 0.46);
@@ -18,7 +20,11 @@ export default function CityCard({ cidade }: CityCardProps) {
   const bodyPadding = r.scaleX(8);
 
   return (
-    <View style={[styles.card, { width: cardWidth, height: cardHeight, padding: cardPadding, marginLeft: r.scaleX(16) }]}>
+    <TouchableOpacity
+      activeOpacity={0.85}
+      onPress={() => router.push({ pathname: '/detalhes-cidade', params: { id: cidade.id } })}
+      style={[styles.card, { width: cardWidth, height: cardHeight, padding: cardPadding, marginLeft: r.scaleX(16) }]}
+    >
       <Image source={{ uri: cidade.imagemUrl }} style={[styles.image, { height: imageHeight }]} />
       <View style={[styles.body, { padding: bodyPadding }]}>
         <Text style={[styles.name, { fontSize: r.font(12) }]} numberOfLines={1}>
@@ -30,9 +36,9 @@ export default function CityCard({ cidade }: CityCardProps) {
         <Text style={[styles.description, { fontSize: r.font(12) }]} numberOfLines={2}>
           Descubra pontos turísticos, cultura local e experiências únicas.
         </Text>
-        <Text style={[styles.rating, { fontSize: r.font(12) }]}>* {cidade.avaliacao.toFixed(1)}</Text>
+        <Text style={[styles.rating, { fontSize: r.font(12) }]}>⭐ {cidade.avaliacao.toFixed(1)}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
