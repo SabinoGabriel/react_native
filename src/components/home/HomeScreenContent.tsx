@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -5,7 +6,7 @@ import { Colors } from '../../constants/Colors';
 import { Radius, Shadow } from '../../constants/Tokens';
 import { Cidade } from '../../data/mockCidades';
 import { useResponsive } from '../../utils/responsive';
-import BottomNav from './BottomNav';
+import BottomNav, { NavKey } from './BottomNav';
 import HomeSearchHeader from './HomeSearchHeader';
 import HomeSection from './HomeSection';
 
@@ -14,10 +15,10 @@ type HomeScreenContentProps = {
   resultadoBusca: Cidade[] | null;
   recomendadas: Cidade[];
   ultimas: Cidade[];
-  navAtivo: 'explorar' | 'roteiro' | 'mapa' | 'perfil';
+  navAtivo: NavKey;
   onChangeBusca: (value: string) => void;
   onSubmitBusca: () => void;
-  onChangeNav: (key: 'explorar' | 'roteiro' | 'mapa' | 'perfil') => void;
+  onChangeNav: (key: NavKey) => void;
 };
 
 export default function HomeScreenContent({
@@ -32,6 +33,22 @@ export default function HomeScreenContent({
 }: HomeScreenContentProps) {
   const insets = useSafeAreaInsets();
   const r = useResponsive();
+  const router = useRouter();
+
+  function handleChangeNav(key: NavKey) {
+    onChangeNav(key);
+    if (key === 'roteiro') {
+      router.push('/roteiros');
+    } else if (key === 'mapa') {
+      router.push('/mapa');
+    } else if (key === 'perfil') {
+      router.push('/perfil');
+    }
+  }
+
+  function handlePressCenter() {
+    router.push('/criar-roteiro');
+  }
 
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
@@ -80,7 +97,12 @@ export default function HomeScreenContent({
         <HomeSection title="Últimas visualizações" data={ultimas} />
       </ScrollView>
 
-      <BottomNav activeKey={navAtivo} onChange={onChangeNav} bottomInset={insets.bottom} />
+      <BottomNav
+        activeKey={navAtivo}
+        onChange={handleChangeNav}
+        bottomInset={insets.bottom}
+        onPressCenter={handlePressCenter}
+      />
     </SafeAreaView>
   );
 }
@@ -94,8 +116,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  content: {
-  },
+  content: {},
   categoryWrapper: {
     marginBottom: 24,
     paddingHorizontal: 16,
