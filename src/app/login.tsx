@@ -1,7 +1,9 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Pressable } from 'react-native';
+import { Animated, Pressable, ActivityIndicator, Alert } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../services/firebase';
 import AuthLinkAction from '../components/auth/components/AuthLinkAction';
 import AuthScreenLayout from '../components/auth/components/AuthScreenLayout';
 import FormField from '../components/auth/components/FormField';
@@ -21,6 +23,7 @@ export default function LoginScreen() {
   const [erroSenha, setErroSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [lembrar, setLembrar] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const toastOpacity = useRef(new Animated.Value(0)).current;
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -40,7 +43,7 @@ export default function LoginScreen() {
     };
   }, []);
 
-  function handleLogin() {
+  async function handleLogin() {
     let valido = true;
     const emailValido = EMAIL_REGEX.test(email.trim());
 
@@ -66,14 +69,33 @@ export default function LoginScreen() {
     }
 
     if (valido) {
-      router.replace('/home');
+      setLoading(true);
+      try {
+        await signInWithEmailAndPassword(auth, email.trim(), senha);
+        router.replace('/home');
+      } catch (error: any) {
+        console.error(error);
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+          showToast();
+        } else {
+          Alert.alert('Erro', 'Ocorreu um erro ao fazer login. Tente novamente.');
+        }
+      } finally {
+        setLoading(false);
+      }
     }
   }
 
   return (
     <AuthScreenLayout
       title="Login"
-      primaryAction={<PrimaryButton title="Login" onPress={handleLogin} />}
+      primaryAction={
+        loading ? (
+          <ActivityIndicator color={Colors.primary} />
+        ) : (
+          <PrimaryButton title="Login" onPress={handleLogin} />
+        )
+      }
       footerAction={<AuthLinkAction label="Criar conta" onPress={() => router.push('/cadastro')} />}
       overlay={<FloatingToast message="Usuário ou senha inválidos." opacity={toastOpacity} />}
     >

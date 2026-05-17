@@ -15,7 +15,7 @@ type BottomNavProps = {
 
 const NAV_LEFT: Array<{ key: NavKey; label: string; icon: keyof typeof MaterialIcons.glyphMap }> = [
   { key: 'explorar', label: 'Explorar', icon: 'explore' },
-  { key: 'roteiro', label: 'Destinos', icon: 'calendar-today' },
+  { key: 'roteiro', label: 'Roteiros', icon: 'calendar-today' },
 ];
 
 const NAV_RIGHT: Array<{ key: NavKey; label: string; icon: keyof typeof MaterialIcons.glyphMap }> = [

@@ -7,10 +7,12 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../constants/Colors';
 import { useResponsive } from '../utils/responsive';
+import { useAuth } from '../context/AuthContext';
 
 type InfoRowProps = { label: string; value: string };
 function InfoRow({ label, value }: InfoRowProps) {
@@ -23,12 +25,21 @@ function InfoRow({ label, value }: InfoRowProps) {
   );
 }
 
-const REQUISITOS = ['Até R$1500', 'Média', 'Verão', '1-3 dias'];
-
 export default function MeuPerfilScreen() {
   const router = useRouter();
   const r = useResponsive();
   const insets = useSafeAreaInsets();
+  const { userData, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color={Colors.primary} style={{ flex: 1 }} />
+      </SafeAreaView>
+    );
+  }
+
+  const requisitos = userData?.requisitos || ['Média', '1-3 dias'];
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -52,7 +63,7 @@ export default function MeuPerfilScreen() {
         </View>
 
         {/* Name */}
-        <Text style={[styles.name, { fontSize: r.font(24) }]}>Isabella Arruda</Text>
+        <Text style={[styles.name, { fontSize: r.font(24) }]}>{userData?.nome || 'Usuário'}</Text>
 
         {/* Edit button */}
         <TouchableOpacity style={styles.editBtn} activeOpacity={0.8}>
@@ -62,10 +73,10 @@ export default function MeuPerfilScreen() {
 
         {/* Info fields */}
         <View style={styles.infoContainer}>
-          <InfoRow label="Email" value="abc@gmail.com" />
-          <InfoRow label="Nome de Usuário" value="Isabella Arruda" />
-          <InfoRow label="Telefone" value="+55 81 998876583" />
-          <InfoRow label="Data de Nascimento" value="16/03/2000" />
+          <InfoRow label="Email" value={userData?.email || 'N/A'} />
+          <InfoRow label="Nome de Usuário" value={userData?.nome || 'N/A'} />
+          <InfoRow label="Telefone" value={userData?.telefone || 'Não informado'} />
+          <InfoRow label="Data de Nascimento" value={userData?.dataNascimento || 'Não informado'} />
           <InfoRow label="Senha" value="*********" />
         </View>
 
@@ -78,7 +89,7 @@ export default function MeuPerfilScreen() {
           </TouchableOpacity>
         </View>
         <View style={styles.tagsRow}>
-          {REQUISITOS.map((tag) => (
+          {requisitos.map((tag) => (
             <View key={tag} style={styles.tag}>
               <Text style={[styles.tagText, { fontSize: r.font(14) }]}>{tag}</Text>
             </View>

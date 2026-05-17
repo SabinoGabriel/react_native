@@ -1,10 +1,11 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Colors } from '../constants/Colors';
+import { AuthProvider } from '../context/AuthContext';
 
 export default function RootLayout() {
   return (
-    <>
+    <AuthProvider>
       <StatusBar style="light" />
       <Stack
         screenOptions={{
@@ -28,6 +29,6 @@ export default function RootLayout() {
         <Stack.Screen name="detalhes-cidade" />
         <Stack.Screen name="configuracoes" />
       </Stack>
-    </>
+    </AuthProvider>
   );
 }

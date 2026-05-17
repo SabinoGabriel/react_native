@@ -7,10 +7,14 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../constants/Colors';
 import { useResponsive } from '../utils/responsive';
+import { useAuth } from '../context/AuthContext';
+import { auth } from '../services/firebase';
+import { signOut } from 'firebase/auth';
 
 type MenuItemProps = {
   icon: keyof typeof MaterialIcons.glyphMap;
@@ -32,6 +36,24 @@ export default function PerfilMenuScreen() {
   const router = useRouter();
   const r = useResponsive();
   const insets = useSafeAreaInsets();
+  const { userData, loading } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.replace('/login');
+    } catch (error) {
+      console.error("Erro ao sair:", error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color={Colors.primary} style={{ flex: 1 }} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -45,7 +67,7 @@ export default function PerfilMenuScreen() {
             <MaterialIcons name="person" size={r.scaleX(48)} color={Colors.textWhite} />
           </View>
         </View>
-        <Text style={[styles.name, { fontSize: r.font(22) }]}>Isabella Arruda</Text>
+        <Text style={[styles.name, { fontSize: r.font(22) }]}>{userData?.nome || 'Usuário'}</Text>
 
         <View style={styles.divider} />
 
@@ -54,7 +76,7 @@ export default function PerfilMenuScreen() {
         <MenuItem icon="star-border" label="Minhas Avaliações" onPress={() => router.push('/avaliacoes')} />
         <MenuItem icon="auto-awesome" label="Preferências" onPress={() => {}} />
         <MenuItem icon="settings" label="Configurações" onPress={() => router.push('/configuracoes')} />
-        <MenuItem icon="logout" label="Sair da conta" onPress={() => router.replace('/login')} />
+        <MenuItem icon="logout" label="Sair da conta" onPress={handleLogout} />
       </ScrollView>
     </SafeAreaView>
   );
