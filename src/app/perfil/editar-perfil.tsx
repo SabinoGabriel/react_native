@@ -2,6 +2,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -12,8 +14,10 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { doc, updateDoc } from 'firebase/firestore';
 import { Colors } from '../../constants/Colors';
 import { useAuth } from '../../context/AuthContext';
+import { db, isFirebaseConfigured } from '../../services/firebase';
 import { useResponsive } from '../../utils/responsive';
 
 function Field({ label, value, onChangeText, placeholder, keyboardType }: {
@@ -43,11 +47,44 @@ export default function EditarPerfilScreen() {
   const router = useRouter();
   const r = useResponsive();
   const insets = useSafeAreaInsets();
-  const { userData } = useAuth();
+  const { user, userData, refreshUserData } = useAuth();
 
   const [nome, setNome] = useState(userData?.nome ?? '');
   const [telefone, setTelefone] = useState(userData?.telefone ?? '');
   const [dataNascimento, setDataNascimento] = useState(userData?.dataNascimento ?? '');
+  const [salvando, setSalvando] = useState(false);
+
+  async function handleSalvar() {
+    const nomeTrim = nome.trim();
+    if (!nomeTrim) {
+      Alert.alert('Atenção', 'O nome não pode estar vazio.');
+      return;
+    }
+
+    // DEV_FALLBACK: remove after Firebase integration is complete.
+    if (!isFirebaseConfigured || !db || !user) {
+      Alert.alert('Modo desenvolvimento', 'Perfil simulado. Nada foi salvo no Firebase.');
+      router.back();
+      return;
+    }
+
+    setSalvando(true);
+    try {
+      await updateDoc(doc(db, 'usuarios', user.uid), {
+        nome: nomeTrim,
+        ...(telefone.trim() && { telefone: telefone.trim() }),
+        ...(dataNascimento.trim() && { dataNascimento: dataNascimento.trim() }),
+        updatedAt: new Date().toISOString(),
+      });
+      await refreshUserData();
+      router.back();
+    } catch (error: any) {
+      console.error('[editar-perfil]', error);
+      Alert.alert('Erro', 'Não foi possível salvar as alterações. Tente novamente.');
+    } finally {
+      setSalvando(false);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -83,8 +120,17 @@ export default function EditarPerfilScreen() {
           <Field label="Telefone" value={telefone} onChangeText={setTelefone} placeholder="(xx) xxxxx-xxxx" keyboardType="phone-pad" />
           <Field label="Data de Nascimento" value={dataNascimento} onChangeText={setDataNascimento} placeholder="DD/MM/AAAA" />
 
-          <TouchableOpacity style={[styles.saveBtn, { marginTop: r.scaleY(12) }]} activeOpacity={0.85}>
-            <Text style={[styles.saveBtnText, { fontSize: r.font(16) }]}>Salvar Alterações</Text>
+          <TouchableOpacity
+            style={[styles.saveBtn, { marginTop: r.scaleY(12) }, salvando && { opacity: 0.6 }]}
+            activeOpacity={0.85}
+            onPress={handleSalvar}
+            disabled={salvando}
+          >
+            {salvando ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={[styles.saveBtnText, { fontSize: r.font(16) }]}>Salvar Alterações</Text>
+            )}
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>

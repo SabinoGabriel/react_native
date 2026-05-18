@@ -97,8 +97,8 @@ export default function LoginScreen() {
         preferenciasConcluidas = data.preferenciasConcluidas === true;
       } else {
         await setDoc(userRef, {
-          nome: '',
-          email: user.email,
+          nome: user.displayName || '',
+          email: user.email || emailTrim,
           createdAt: new Date().toISOString(),
           preferenciasConcluidas: false,
           preferencias: {},
