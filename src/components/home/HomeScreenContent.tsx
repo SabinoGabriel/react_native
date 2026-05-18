@@ -36,7 +36,7 @@ export default function HomeScreenContent({
         style={styles.scroll}
         contentContainerStyle={[
           styles.content,
-          { paddingTop: r.scaleY(20), paddingBottom: insets.bottom + r.scaleY(20) },
+          { paddingTop: r.scaleY(20), paddingBottom: insets.bottom + r.scaleY(96) },
         ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"

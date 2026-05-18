@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../constants/Colors';
 import MainTabLayout from '../components/layout/MainTabLayout';
 import { useResponsive } from '../utils/responsive';
@@ -16,7 +16,6 @@ const FILTER_TIPOS = ['Urbano', 'Rural', 'Populoso'];
 
 export default function MapaScreen() {
   const r = useResponsive();
-  const insets = useSafeAreaInsets();
   const [filtroAtivo, setFiltroAtivo] = useState('Urbano');
   const [busca, setBusca] = useState('');
 
@@ -88,8 +87,8 @@ export default function MapaScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* City card bottom */}
-      <View style={[styles.cityCard, { paddingBottom: insets.bottom + 8, marginBottom: 0 }]}>
+      {/* City card bottom — marginBottom evita encostar no BottomNav */}
+      <View style={[styles.cityCard, { paddingBottom: 12, marginBottom: r.scaleY(8) }]}>
         <View style={styles.cityCardImg}>
           <Text style={{ fontSize: 32 }}>🏙️</Text>
         </View>

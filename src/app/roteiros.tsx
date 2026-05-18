@@ -84,7 +84,7 @@ export default function RoteirosScreen() {
         </View>
 
         <ScrollView
-          contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + r.scaleY(24) }]}
+          contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + r.scaleY(96) }]}
           showsVerticalScrollIndicator={false}
         >
           <Text style={[styles.sectionTitle, { fontSize: r.font(18) }]}>Roteiros Recomendados</Text>

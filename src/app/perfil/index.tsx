@@ -68,7 +68,7 @@ export default function PerfilMenuScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + r.scaleY(96) }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Avatar + Name */}
