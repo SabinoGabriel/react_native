@@ -85,7 +85,6 @@ export default function PerfilMenuScreen() {
         <MenuItem icon="bookmark-border" label="Roteiros Favoritos" onPress={() => router.push('/perfil/roteiros-favoritos')} />
         <MenuItem icon="star-border" label="Minhas Avaliações" onPress={() => router.push('/perfil/avaliacoes')} />
         <MenuItem icon="auto-awesome" label="Preferências" onPress={() => router.push('/perfil/preferencias')} />
-        <MenuItem icon="settings" label="Configurações" onPress={() => router.push('/perfil/configuracoes')} />
         <MenuItem icon="logout" label="Sair da conta" onPress={handleLogout} />
       </ScrollView>
     </SafeAreaView>

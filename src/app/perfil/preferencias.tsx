@@ -81,12 +81,11 @@ export default function PreferenciasScreen() {
     const preferencias = { clima, duracao, estilo };
 
     // Modo desenvolvimento: sem Firebase, simula a gravacao e segue para /home.
+    // No React Native Web o callback do botao do Alert nao dispara, entao
+    // navegamos independente do Alert.
     if (!isFirebaseConfigured || !auth || !db || !user) {
-      Alert.alert(
-        'Modo desenvolvimento',
-        'Preferências simuladas. Nada foi salvo no Firebase.',
-        [{ text: 'OK', onPress: () => router.replace('/home') }],
-      );
+      Alert.alert('Modo desenvolvimento', 'Preferências simuladas. Nada foi salvo no Firebase.');
+      router.replace('/home');
       return;
     }
 

@@ -29,19 +29,24 @@ export default function CadastroScreen() {
   const [loading, setLoading] = useState(false);
 
   async function handleCadastro() {
-    let valido = true;
+    console.log('BOTÃO CADASTRO CLICADO');
 
-    if (!nome.trim()) {
+    // 1. Validacao local — se algo falhar, nao chama Firebase nem navega.
+    let valido = true;
+    const nomeTrim = nome.trim();
+    const emailTrim = email.trim();
+
+    if (!nomeTrim) {
       setErroNome('O nome é obrigatório.');
       valido = false;
     } else {
       setErroNome('');
     }
 
-    if (!email.trim()) {
+    if (!emailTrim) {
       setErroEmail('O e-mail é obrigatório.');
       valido = false;
-    } else if (!EMAIL_REGEX.test(email.trim())) {
+    } else if (!EMAIL_REGEX.test(emailTrim)) {
       setErroEmail('Informe um e-mail válido.');
       valido = false;
     } else {
@@ -68,64 +73,60 @@ export default function CadastroScreen() {
       setErroConfirmar('');
     }
 
-    if (valido) {
-      // Modo desenvolvimento: Firebase ausente -> nao chama Auth/Firestore,
-      // simula o cadastro e volta para /login para permitir testar a navegacao.
-      if (!isFirebaseConfigured || !auth || !db) {
-        Alert.alert(
-          'Modo desenvolvimento',
-          'Cadastro simulado. Como o Firebase não está configurado, nenhuma conta real foi criada.',
-          [{ text: 'OK', onPress: () => router.replace('/login') }],
-        );
-        return;
-      }
+    if (!valido) return;
 
-      setLoading(true);
-      let contaCriada = false;
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), senha);
-        const user = userCredential.user;
-        contaCriada = true;
+    // 2. Modo desenvolvimento: sem Firebase, simula cadastro e volta para /login.
+    // Importante: no React Native Web o callback do botao do Alert nao dispara,
+    // entao navegamos antes/independente do Alert.
+    if (!isFirebaseConfigured || !auth || !db) {
+      Alert.alert('Modo desenvolvimento', 'Cadastro simulado. Nenhuma conta real foi criada.');
+      router.replace('/login');
+      return;
+    }
 
-        await setDoc(doc(db, 'usuarios', user.uid), {
-          nome: nome.trim(),
-          email: email.trim(),
-          createdAt: new Date().toISOString(),
-          preferenciasConcluidas: false,
-          preferencias: {},
-        });
+    // 3. Fluxo real do Firebase
+    setLoading(true);
+    let contaCriada = false;
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, emailTrim, senha);
+      const user = userCredential.user;
+      contaCriada = true;
 
-        // createUserWithEmailAndPassword loga automaticamente; saimos para forcar o fluxo
-        // de login manual e cair no onboarding de preferencias depois.
-        await signOut(auth);
+      await setDoc(doc(db, 'usuarios', user.uid), {
+        nome: nomeTrim,
+        email: emailTrim,
+        createdAt: new Date().toISOString(),
+        preferenciasConcluidas: false,
+        preferencias: {},
+      });
 
+      // createUserWithEmailAndPassword loga automaticamente; saimos para forcar
+      // login manual e cair no onboarding de preferencias.
+      await signOut(auth);
+      router.replace('/login');
+    } catch (error: any) {
+      console.error('[cadastro]', error);
+      let mensagem = 'Erro ao criar conta. Tente novamente.';
+
+      if (contaCriada) {
+        mensagem =
+          'Sua conta foi criada, mas nao foi possivel salvar seu perfil. ' +
+          'Verifique as Regras do Firestore (colecao "usuarios") e tente fazer login.';
+        try { await signOut(auth); } catch {}
         router.replace('/login');
-      } catch (error: any) {
-        console.error('[cadastro]', error);
-        let mensagem = 'Erro ao criar conta. Tente novamente.';
-
-        if (contaCriada) {
-          // Conta criada no Auth mas Firestore falhou
-          mensagem =
-            'Sua conta foi criada, mas nao foi possivel salvar seu perfil. ' +
-            'Verifique as Regras do Firestore (colecao "usuarios") e tente fazer login.';
-          // Garante que nao fique logado num estado inconsistente
-          try { await signOut(auth); } catch {}
-          router.replace('/login');
-        } else if (error.code === 'auth/email-already-in-use') {
-          mensagem = 'Este e-mail já está em uso.';
-        } else if (error.code === 'auth/invalid-email') {
-          mensagem = 'Informe um e-mail válido.';
-        } else if (error.code === 'auth/weak-password') {
-          mensagem = 'A senha precisa ter pelo menos 6 caracteres.';
-        } else if (error.code === 'auth/network-request-failed') {
-          mensagem = 'Falha de conexão. Verifique sua internet.';
-        }
-
-        Alert.alert('Erro', mensagem);
-      } finally {
-        setLoading(false);
+      } else if (error.code === 'auth/email-already-in-use') {
+        mensagem = 'Este e-mail já está em uso.';
+      } else if (error.code === 'auth/invalid-email') {
+        mensagem = 'Informe um e-mail válido.';
+      } else if (error.code === 'auth/weak-password') {
+        mensagem = 'A senha precisa ter pelo menos 6 caracteres.';
+      } else if (error.code === 'auth/network-request-failed') {
+        mensagem = 'Falha de conexão. Verifique sua internet.';
       }
+
+      Alert.alert('Erro', mensagem);
+    } finally {
+      setLoading(false);
     }
   }
 
