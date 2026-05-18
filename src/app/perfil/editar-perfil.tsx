@@ -20,12 +20,26 @@ import { useAuth } from '../../context/AuthContext';
 import { db, isFirebaseConfigured } from '../../services/firebase';
 import { useResponsive } from '../../utils/responsive';
 
+function formatTelefone(raw: string): string {
+  const digits = raw.replace(/\D/g, '').slice(0, 11);
+  if (digits.length <= 2) return digits.length ? `(${digits}` : '';
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
+function formatDataNascimento(raw: string): string {
+  const digits = raw.replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
+
 function Field({ label, value, onChangeText, placeholder, keyboardType }: {
   label: string;
   value: string;
   onChangeText: (v: string) => void;
   placeholder?: string;
-  keyboardType?: 'default' | 'email-address' | 'phone-pad';
+  keyboardType?: 'default' | 'email-address' | 'phone-pad' | 'numeric';
 }) {
   const r = useResponsive();
   return (
@@ -117,8 +131,8 @@ export default function EditarPerfilScreen() {
             onChangeText={() => {}}
             keyboardType="email-address"
           />
-          <Field label="Telefone" value={telefone} onChangeText={setTelefone} placeholder="(xx) xxxxx-xxxx" keyboardType="phone-pad" />
-          <Field label="Data de Nascimento" value={dataNascimento} onChangeText={setDataNascimento} placeholder="DD/MM/AAAA" />
+          <Field label="Telefone" value={telefone} onChangeText={(v) => setTelefone(formatTelefone(v))} placeholder="(xx) xxxxx-xxxx" keyboardType="phone-pad" />
+          <Field label="Data de Nascimento" value={dataNascimento} onChangeText={(v) => setDataNascimento(formatDataNascimento(v))} placeholder="DD/MM/AAAA" keyboardType="numeric" />
 
           <TouchableOpacity
             style={[styles.saveBtn, { marginTop: r.scaleY(12) }, salvando && { opacity: 0.6 }]}
