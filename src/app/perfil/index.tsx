@@ -14,6 +14,7 @@ import { useResponsive } from '../../utils/responsive';
 import { useAuth } from '../../context/AuthContext';
 import { auth } from '../../services/firebase';
 import { signOut } from 'firebase/auth';
+import MainTabLayout from '../../components/layout/MainTabLayout';
 
 type MenuItemProps = {
   icon: keyof typeof MaterialIcons.glyphMap;
@@ -50,19 +51,19 @@ export default function PerfilMenuScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color={Colors.primary} style={{ flex: 1 }} />
-      </SafeAreaView>
+      <MainTabLayout activeTab="perfil">
+        <SafeAreaView style={styles.container}>
+          <ActivityIndicator size="large" color={Colors.primary} style={{ flex: 1 }} />
+        </SafeAreaView>
+      </MainTabLayout>
     );
   }
 
   return (
+    <MainTabLayout activeTab="perfil">
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
+      {/* Header — sem botao de voltar, e uma aba principal */}
       <View style={[styles.header, { paddingTop: r.scaleY(8) }]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <MaterialIcons name="arrow-back" size={24} color={Colors.textWhite} />
-        </TouchableOpacity>
         <Text style={[styles.headerTitle, { fontSize: r.font(20) }]}>Perfil</Text>
       </View>
 
@@ -88,6 +89,7 @@ export default function PerfilMenuScreen() {
         <MenuItem icon="logout" label="Sair da conta" onPress={handleLogout} />
       </ScrollView>
     </SafeAreaView>
+    </MainTabLayout>
   );
 }
 

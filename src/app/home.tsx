@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import HomeScreenContent from '../components/home/HomeScreenContent';
+import MainTabLayout from '../components/layout/MainTabLayout';
 import { Cidade, cidadesRecomendadas, ultimasVisualizadas } from '../data/mockCidades';
-
-type NavKey = 'explorar' | 'roteiro' | 'mapa' | 'perfil';
 
 export default function HomeScreen() {
   const [busca, setBusca] = useState('');
   const [resultadoBusca, setResultadoBusca] = useState<Cidade[] | null>(null);
-  const [navAtivo, setNavAtivo] = useState<NavKey>('explorar');
 
   function handleBusca() {
     const termo = busca.trim().toLowerCase();
@@ -19,21 +17,19 @@ export default function HomeScreen() {
     setResultadoBusca(todas.filter((c) => c.nome.toLowerCase().includes(termo)));
   }
 
-  const recomendadasFiltradas = cidadesRecomendadas;
-
   return (
-    <HomeScreenContent
-      busca={busca}
-      resultadoBusca={resultadoBusca}
-      recomendadas={recomendadasFiltradas}
-      ultimas={ultimasVisualizadas}
-      navAtivo={navAtivo}
-      onChangeBusca={(t) => {
-        setBusca(t);
-        if (!t.trim()) setResultadoBusca(null);
-      }}
-      onSubmitBusca={handleBusca}
-      onChangeNav={setNavAtivo}
-    />
+    <MainTabLayout activeTab="explorar">
+      <HomeScreenContent
+        busca={busca}
+        resultadoBusca={resultadoBusca}
+        recomendadas={cidadesRecomendadas}
+        ultimas={ultimasVisualizadas}
+        onChangeBusca={(t) => {
+          setBusca(t);
+          if (!t.trim()) setResultadoBusca(null);
+        }}
+        onSubmitBusca={handleBusca}
+      />
+    </MainTabLayout>
   );
 }

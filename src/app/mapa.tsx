@@ -1,5 +1,4 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   StyleSheet,
@@ -10,28 +9,23 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../constants/Colors';
-import { cidadesRecomendadas, ultimasVisualizadas } from '../data/mockCidades';
+import MainTabLayout from '../components/layout/MainTabLayout';
 import { useResponsive } from '../utils/responsive';
 
 const FILTER_TIPOS = ['Urbano', 'Rural', 'Populoso'];
 
 export default function MapaScreen() {
-  const router = useRouter();
   const r = useResponsive();
   const insets = useSafeAreaInsets();
   const [filtroAtivo, setFiltroAtivo] = useState('Urbano');
   const [busca, setBusca] = useState('');
 
-  const todasCidades = [...cidadesRecomendadas, ...ultimasVisualizadas];
-
   return (
+    <MainTabLayout activeTab="mapa">
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Search & filters */}
+      {/* Search & filters — sem botao de voltar, e uma aba principal */}
       <View style={[styles.topBar, { paddingTop: r.scaleY(8) }]}>
         <View style={styles.mapHeader}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <MaterialIcons name="arrow-back" size={22} color={Colors.textDark} />
-          </TouchableOpacity>
           <Text style={[styles.mapHeaderTitle, { fontSize: r.font(16) }]}>Explorar Mapa</Text>
         </View>
         <View style={styles.searchBar}>
@@ -95,7 +89,7 @@ export default function MapaScreen() {
       </View>
 
       {/* City card bottom */}
-      <View style={[styles.cityCard, { paddingBottom: insets.bottom + 8 }]}>
+      <View style={[styles.cityCard, { paddingBottom: insets.bottom + 8, marginBottom: 0 }]}>
         <View style={styles.cityCardImg}>
           <Text style={{ fontSize: 32 }}>🏙️</Text>
         </View>
@@ -120,6 +114,7 @@ export default function MapaScreen() {
         </View>
       </View>
     </SafeAreaView>
+    </MainTabLayout>
   );
 }
 

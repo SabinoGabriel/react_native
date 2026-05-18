@@ -1,8 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  FlatList,
   Image,
   ScrollView,
   StyleSheet,
@@ -13,7 +11,8 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../constants/Colors';
-import { roteirosFavoritos, roteirosRecomendados, Roteiro } from '../data/mockRoteiros';
+import MainTabLayout from '../components/layout/MainTabLayout';
+import { roteirosRecomendados, Roteiro } from '../data/mockRoteiros';
 import { useResponsive } from '../utils/responsive';
 
 function RoteirCard({ roteiro }: { roteiro: Roteiro }) {
@@ -50,7 +49,6 @@ function RoteirCard({ roteiro }: { roteiro: Roteiro }) {
 }
 
 export default function RoteirosScreen() {
-  const router = useRouter();
   const r = useResponsive();
   const insets = useSafeAreaInsets();
   const [busca, setBusca] = useState('');
@@ -62,50 +60,40 @@ export default function RoteirosScreen() {
     : roteirosRecomendados;
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: r.scaleY(12), paddingBottom: 8 }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 16 }}>
-          <MaterialIcons name="arrow-back" size={24} color={Colors.textWhite} />
-        </TouchableOpacity>
-        <Text style={{ color: Colors.textWhite, fontSize: r.font(20), fontWeight: '700' }}>
-          Roteiros Recomendados
-        </Text>
-      </View>
-
-      {/* Search bar */}
-      <View style={[styles.searchWrapper, { paddingTop: r.scaleY(8) }]}>
-        <View style={styles.searchBar}>
-          <TextInput
-            style={[styles.searchInput, { fontSize: r.font(14) }]}
-            placeholder="Pesquisar Roteiro"
-            placeholderTextColor={Colors.primary}
-            value={busca}
-            onChangeText={setBusca}
-          />
-          <MaterialIcons name="search" size={22} color={Colors.textGray} />
+    <MainTabLayout activeTab="roteiro">
+      <SafeAreaView style={styles.container} edges={['top']}>
+        {/* Header — sem botao de voltar, e uma aba principal */}
+        <View style={{ paddingHorizontal: 20, paddingTop: r.scaleY(12), paddingBottom: 8 }}>
+          <Text style={{ color: Colors.textWhite, fontSize: r.font(20), fontWeight: '700' }}>
+            Roteiros Recomendados
+          </Text>
         </View>
-      </View>
 
-      <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + r.scaleY(100) }]}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={[styles.sectionTitle, { fontSize: r.font(18) }]}>Roteiros Recomendados</Text>
-        {filtrados.map((rt) => (
-          <RoteirCard key={rt.id} roteiro={rt} />
-        ))}
-      </ScrollView>
+        {/* Search bar */}
+        <View style={[styles.searchWrapper, { paddingTop: r.scaleY(8) }]}>
+          <View style={styles.searchBar}>
+            <TextInput
+              style={[styles.searchInput, { fontSize: r.font(14) }]}
+              placeholder="Pesquisar Roteiro"
+              placeholderTextColor={Colors.primary}
+              value={busca}
+              onChangeText={setBusca}
+            />
+            <MaterialIcons name="search" size={22} color={Colors.textGray} />
+          </View>
+        </View>
 
-      {/* FAB */}
-      <TouchableOpacity
-        style={[styles.fab, { bottom: insets.bottom + 24 }]}
-        onPress={() => router.push('/criar-roteiro')}
-        activeOpacity={0.85}
-      >
-        <MaterialIcons name="add" size={28} color="#FFFFFF" />
-      </TouchableOpacity>
-    </SafeAreaView>
+        <ScrollView
+          contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + r.scaleY(24) }]}
+          showsVerticalScrollIndicator={false}
+        >
+          <Text style={[styles.sectionTitle, { fontSize: r.font(18) }]}>Roteiros Recomendados</Text>
+          {filtrados.map((rt) => (
+            <RoteirCard key={rt.id} roteiro={rt} />
+          ))}
+        </ScrollView>
+      </SafeAreaView>
+    </MainTabLayout>
   );
 }
 
@@ -159,22 +147,4 @@ const styles = StyleSheet.create({
   },
   badgeText: { color: Colors.textDark },
   bookmarkBtn: { padding: 4 },
-  fab: {
-    position: 'absolute',
-    right: 'auto',
-    alignSelf: 'center',
-    left: '50%',
-    marginLeft: -28,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 6,
-  },
 });
