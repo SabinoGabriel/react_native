@@ -2,6 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -13,7 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import StarRating from '../components/ui/StarRating';
 import { Colors } from '../constants/Colors';
 import { avaliacoesComunidade } from '../data/mockAvaliacoes';
-import { cidadesRecomendadas, Cidade } from '../data/mockCidades';
+import { cidadesRecomendadas, ultimasVisualizadas, Cidade } from '../data/mockCidades';
 import { useResponsive } from '../utils/responsive';
 
 // Mock extra city details
@@ -32,18 +33,55 @@ export default function DetalhesCidadeScreen() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ id?: string }>();
 
-  const cidade: Cidade = cidadesRecomendadas.find((c) => c.id === params.id) ?? {
-    id: '0',
-    nome: 'Taquaritinga do Norte',
-    estado: 'PE',
-    regiao: 'Nordeste',
-    avaliacao: 4.0,
-    categoria: 'Histórico',
-    imagemUrl: 'https://picsum.photos/seed/taquaritinga/400/300',
-  };
+  const cidade: Cidade | undefined =
+    cidadesRecomendadas.find((c) => c.id === params.id) ??
+    ultimasVisualizadas.find((c) => c.id === params.id);
+
+  const [showReviews, setShowReviews] = useState(false);
+  const [favoritado, setFavoritado] = useState(false);
+
+  if (!cidade) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.notFoundHeader}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.notFoundBack}>
+            <MaterialIcons name="arrow-back" size={24} color={Colors.textWhite} />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.notFoundBody}>
+          <MaterialIcons name="location-off" size={48} color={Colors.textGray} />
+          <Text style={[styles.notFoundTitle, { fontSize: r.font(18) }]}>
+            Cidade não encontrada
+          </Text>
+          <TouchableOpacity style={styles.notFoundBtn} onPress={() => router.back()}>
+            <Text style={styles.notFoundBtnText}>Voltar</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const det = detalhesExtra.default;
-  const [showReviews, setShowReviews] = useState(false);
+
+  function handleFavoritar() {
+    setFavoritado((v) => !v);
+    // DEV_FALLBACK: remove after Firebase integration is complete.
+    // Plugar: updateDoc(usuarios/{uid}, { favoritos: arrayUnion(cidade.id) })
+    Alert.alert('Favoritos', 'Cidade favoritada no modo desenvolvimento.');
+  }
+
+  function handleAvaliar() {
+    // DEV_FALLBACK: remove after Firebase integration is complete.
+    // Plugar: navegar para tela de avaliacao ou abrir modal e gravar em avaliacoes/{uid_cidadeId}.
+    Alert.alert('Avaliar', 'Avaliação simulada no modo desenvolvimento.');
+  }
+
+  function handleAdicionarRoteiro() {
+    // DEV_FALLBACK: remove after Firebase integration is complete.
+    // Plugar: updateDoc(roteiros/{roteiroId}, { cidades: arrayUnion(cidade.id) })
+    // ou abrir seletor de roteiro do usuario.
+    Alert.alert('Roteiro', 'Cidade adicionada ao roteiro no modo desenvolvimento.');
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -82,6 +120,9 @@ export default function DetalhesCidadeScreen() {
         {/* Body */}
         <View style={[styles.body, { paddingHorizontal: 20 }]}>
           <Text style={[styles.cidadeNome, { fontSize: r.font(24) }]}>{cidade.nome}</Text>
+          <Text style={[styles.cidadeSub, { fontSize: r.font(13) }]}>
+            {cidade.estado} • {cidade.regiao} • {cidade.categoria}
+          </Text>
 
           {/* Rating row */}
           <View style={styles.ratingRow}>
@@ -90,6 +131,18 @@ export default function DetalhesCidadeScreen() {
             <TouchableOpacity onPress={() => setShowReviews((v) => !v)}>
               <Text style={[styles.verMaisBtn, { fontSize: r.font(14) }]}>Ver mais</Text>
             </TouchableOpacity>
+          </View>
+
+          {/* Action buttons */}
+          <View style={styles.actionsRow}>
+            <ActionButton
+              icon={favoritado ? 'favorite' : 'favorite-border'}
+              label={favoritado ? 'Favoritado' : 'Favoritar'}
+              onPress={handleFavoritar}
+              r={r}
+            />
+            <ActionButton icon="star-rate" label="Avaliar" onPress={handleAvaliar} r={r} />
+            <ActionButton icon="playlist-add" label="Roteiro" onPress={handleAdicionarRoteiro} r={r} />
           </View>
 
           {!showReviews ? (
@@ -140,6 +193,39 @@ export default function DetalhesCidadeScreen() {
     </SafeAreaView>
   );
 }
+
+function ActionButton({
+  icon,
+  label,
+  onPress,
+  r,
+}: {
+  icon: keyof typeof MaterialIcons.glyphMap;
+  label: string;
+  onPress: () => void;
+  r: ReturnType<typeof import('../utils/responsive').useResponsive>;
+}) {
+  return (
+    <TouchableOpacity style={actionStyles.btn} onPress={onPress} activeOpacity={0.85}>
+      <MaterialIcons name={icon} size={20} color="#FFFFFF" />
+      <Text style={[actionStyles.label, { fontSize: r.font(13) }]}>{label}</Text>
+    </TouchableOpacity>
+  );
+}
+
+const actionStyles = StyleSheet.create({
+  btn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: Colors.primary,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  label: { color: '#FFFFFF', fontWeight: '600' },
+});
 
 function InfoCard({
   icon,
@@ -229,8 +315,22 @@ const styles = StyleSheet.create({
   likesText: { color: Colors.primary, fontWeight: '600', flex: 1 },
   shareBtn: {},
   body: { paddingTop: 24 },
-  cidadeNome: { color: Colors.textWhite, fontWeight: '700', marginBottom: 8 },
-  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 24 },
+  cidadeNome: { color: Colors.textWhite, fontWeight: '700', marginBottom: 4 },
+  cidadeSub: { color: Colors.textGray, marginBottom: 8 },
+  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 },
+  actionsRow: { flexDirection: 'row', gap: 8, marginBottom: 24 },
+  // Not-found
+  notFoundHeader: { paddingHorizontal: 16, paddingTop: 8 },
+  notFoundBack: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  notFoundBody: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16, padding: 24 },
+  notFoundTitle: { color: Colors.textWhite, fontWeight: '700', textAlign: 'center' },
+  notFoundBtn: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 24,
+  },
+  notFoundBtnText: { color: '#FFFFFF', fontWeight: '700' },
   ratingNum: { color: Colors.primary, fontWeight: '700' },
   verMaisBtn: { color: Colors.primary, marginLeft: 4 },
   sectionTitle: { color: Colors.textWhite, fontWeight: '700', marginTop: 8, marginBottom: 12 },

@@ -1,11 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
-  Pressable,
+  Alert,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -13,14 +12,15 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../constants/Colors';
+import { cidadesRecomendadas, ultimasVisualizadas } from '../data/mockCidades';
+import { isFirebaseConfigured } from '../services/firebase';
 import { useResponsive } from '../utils/responsive';
 
 const TIPOS = ['Econômico', 'Conforto', 'Aventura'];
 const CLIMAS = ['Ensolarado', 'Frio', 'Chuvoso', 'Temperado'];
 const ENERGIAS = ['Calmo', 'Moderado', 'Intenso'];
 const CORES = ['#F59E0B', '#10B981', '#EF4444', '#3B82F6', '#8B5CF6', '#0891B2'];
-
-type CidadeItem = { id: string; nome: string };
+const DURACOES = ['1 dia', '2-3 dias', '4-7 dias', '7+ dias'];
 
 export default function CriarRoteiroScreen() {
   const router = useRouter();
@@ -28,28 +28,64 @@ export default function CriarRoteiroScreen() {
   const insets = useSafeAreaInsets();
 
   const [nome, setNome] = useState('');
-  const [cidades, setCidades] = useState<CidadeItem[]>([
-    { id: '1', nome: 'Recife' },
-    { id: '2', nome: 'João Pessoa' },
-    { id: '3', nome: 'Natal' },
-  ]);
-  const [novaCidade, setNovaCidade] = useState('');
-  const [distancia, setDistancia] = useState('300 Km');
-  const [duracao, setDuracao] = useState('2 dias');
+  const [cidadesSelecionadas, setCidadesSelecionadas] = useState<string[]>([]);
+  const [filtroCidade, setFiltroCidade] = useState('');
+  const [duracao, setDuracao] = useState('');
+  const [observacoes, setObservacoes] = useState('');
   const [tipoSelecionado, setTipoSelecionado] = useState('Econômico');
   const [climaSelecionado, setClimaSelecionado] = useState('Ensolarado');
   const [energiaSelecionada, setEnergiaSelecionada] = useState('Calmo');
   const [corSelecionada, setCorSelecionada] = useState(CORES[0]);
   const [privado, setPrivado] = useState(true);
 
-  function adicionarCidade() {
-    if (!novaCidade.trim()) return;
-    setCidades((prev) => [...prev, { id: Date.now().toString(), nome: novaCidade.trim() }]);
-    setNovaCidade('');
+  const todasCidades = useMemo(() => {
+    const map = new Map<string, { id: string; nome: string; estado: string }>();
+    [...cidadesRecomendadas, ...ultimasVisualizadas].forEach((c) => {
+      map.set(c.id, { id: c.id, nome: c.nome, estado: c.estado });
+    });
+    return Array.from(map.values()).sort((a, b) => a.nome.localeCompare(b.nome));
+  }, []);
+
+  const cidadesFiltradas = useMemo(() => {
+    const termo = filtroCidade.trim().toLowerCase();
+    if (!termo) return todasCidades;
+    return todasCidades.filter((c) => c.nome.toLowerCase().includes(termo));
+  }, [filtroCidade, todasCidades]);
+
+  function toggleCidade(id: string) {
+    setCidadesSelecionadas((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
   }
 
-  function removerCidade(id: string) {
-    setCidades((prev) => prev.filter((c) => c.id !== id));
+  function handleSalvar() {
+    const nomeTrim = nome.trim();
+    if (!nomeTrim) {
+      Alert.alert('Atenção', 'Informe o nome do roteiro.');
+      return;
+    }
+    if (!duracao) {
+      Alert.alert('Atenção', 'Selecione a duração do roteiro.');
+      return;
+    }
+    if (cidadesSelecionadas.length === 0) {
+      Alert.alert('Atenção', 'Selecione pelo menos uma cidade.');
+      return;
+    }
+
+    // TODO Firebase: salvar em collection(db, 'roteiros') com
+    // { uid, nome: nomeTrim, duracao, cidades: cidadesSelecionadas, observacoes,
+    //   tipo: tipoSelecionado, clima: climaSelecionado, energia: energiaSelecionada,
+    //   cor: corSelecionada, privado, createdAt: serverTimestamp() }
+
+    // DEV_FALLBACK: remove after Firebase integration is complete.
+    // Sem Firebase, apenas avisamos e voltamos para a lista de roteiros.
+    if (!isFirebaseConfigured) {
+      Alert.alert('Modo desenvolvimento', 'Roteiro criado de forma simulada.');
+    } else {
+      Alert.alert('Modo desenvolvimento', 'Roteiro criado de forma simulada.');
+    }
+    router.replace('/roteiros');
   }
 
   return (
@@ -80,43 +116,61 @@ export default function CriarRoteiroScreen() {
           onChangeText={setNome}
         />
 
-        {/* Cidades */}
-        <Text style={[styles.label, { fontSize: r.font(15), marginTop: 20 }]}>Cidades Selecionadas</Text>
+        {/* Cidades — selecao a partir de mockCidades */}
+        <Text style={[styles.label, { fontSize: r.font(15), marginTop: 20 }]}>
+          Cidades ({cidadesSelecionadas.length} selecionada{cidadesSelecionadas.length === 1 ? '' : 's'})
+        </Text>
         <View style={styles.addCidadeBox}>
           <TextInput
             style={[styles.addCidadeInput, { fontSize: r.font(14) }]}
-            placeholder="Nova cidade"
+            placeholder="Filtrar cidades..."
             placeholderTextColor="rgba(255,255,255,0.5)"
-            value={novaCidade}
-            onChangeText={setNovaCidade}
-            onSubmitEditing={adicionarCidade}
+            value={filtroCidade}
+            onChangeText={setFiltroCidade}
+            autoCapitalize="none"
           />
-          <TouchableOpacity style={styles.addCidadeBtn} onPress={adicionarCidade}>
-            <MaterialIcons name="add" size={20} color="#10B981" />
-            <Text style={[styles.addCidadeBtnText, { fontSize: r.font(14) }]}>Adicionar Cidade</Text>
-          </TouchableOpacity>
+          <View style={styles.cidadeChips}>
+            {cidadesFiltradas.map((c) => {
+              const selected = cidadesSelecionadas.includes(c.id);
+              return (
+                <TouchableOpacity
+                  key={c.id}
+                  style={[styles.cidadeChip, selected && styles.cidadeChipActive]}
+                  onPress={() => toggleCidade(c.id)}
+                  activeOpacity={0.7}
+                >
+                  <MaterialIcons
+                    name={selected ? 'check-circle' : 'place'}
+                    size={16}
+                    color={selected ? '#FFFFFF' : Colors.textWhite}
+                  />
+                  <Text style={[styles.cidadeChipText, { fontSize: r.font(13) }, selected && styles.cidadeChipTextActive]}>
+                    {c.nome}/{c.estado}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+            {cidadesFiltradas.length === 0 && (
+              <Text style={[styles.cidadeEmpty, { fontSize: r.font(13) }]}>Nenhuma cidade encontrada.</Text>
+            )}
+          </View>
         </View>
 
-        {cidades.map((c) => (
-          <View key={c.id} style={styles.cidadeRow}>
-            <MaterialIcons name="place" size={18} color={Colors.textGray} />
-            <Text style={[styles.cidadeNome, { fontSize: r.font(15) }]}>{c.nome}</Text>
-            <TouchableOpacity onPress={() => removerCidade(c.id)} style={{ marginLeft: 'auto' }}>
-              <MaterialIcons name="drag-handle" size={20} color={Colors.textGray} />
-            </TouchableOpacity>
-          </View>
-        ))}
-
-        {/* Distância e Duração */}
-        <View style={styles.rowInfo}>
-          <Text style={[styles.label, { fontSize: r.font(15) }]}>Distância:</Text>
-          <View style={styles.infoBadge}>
-            <Text style={[styles.infoBadgeText, { fontSize: r.font(14) }]}>{distancia}</Text>
-          </View>
-          <Text style={[styles.label, { fontSize: r.font(15), marginLeft: 16 }]}>Duração:</Text>
-          <View style={styles.infoBadge}>
-            <Text style={[styles.infoBadgeText, { fontSize: r.font(14) }]}>{duracao}</Text>
-          </View>
+        {/* Duracao */}
+        <Text style={[styles.label, { fontSize: r.font(15), marginTop: 16 }]}>Duração:</Text>
+        <View style={styles.optionsRow}>
+          {DURACOES.map((d) => {
+            const selected = d === duracao;
+            return (
+              <TouchableOpacity
+                key={d}
+                style={[styles.optionChip, { backgroundColor: selected ? Colors.primary : 'transparent', borderColor: Colors.primary }]}
+                onPress={() => setDuracao(d)}
+              >
+                <Text style={[styles.optionChipText, { fontSize: r.font(13), color: selected ? '#FFF' : Colors.textWhite }]}>{d}</Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         {/* Tipo */}
@@ -192,6 +246,19 @@ export default function CriarRoteiroScreen() {
           ))}
         </View>
 
+        {/* Observacoes */}
+        <Text style={[styles.label, { fontSize: r.font(15), marginTop: 16 }]}>Observações:</Text>
+        <TextInput
+          style={[styles.observacoesInput, { fontSize: r.font(14) }]}
+          placeholder="Anotações ou descrição do roteiro (opcional)"
+          placeholderTextColor="rgba(255,255,255,0.5)"
+          value={observacoes}
+          onChangeText={setObservacoes}
+          multiline
+          numberOfLines={4}
+          textAlignVertical="top"
+        />
+
         {/* Privacidade */}
         <Text style={[styles.label, { fontSize: r.font(15), marginTop: 16 }]}>Privacidade do Roteiro:</Text>
         <View style={styles.privacidadeRow}>
@@ -217,7 +284,7 @@ export default function CriarRoteiroScreen() {
         <TouchableOpacity style={styles.descartarBtn} onPress={() => router.back()}>
           <Text style={[styles.descartarText, { fontSize: r.font(15) }]}>Descartar</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.salvarBtn} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.salvarBtn} onPress={handleSalvar}>
           <Text style={[styles.salvarText, { fontSize: r.font(15) }]}>Salvar Roteiro</Text>
         </TouchableOpacity>
       </View>
@@ -268,6 +335,32 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   addCidadeBtnText: { color: '#10B981', fontWeight: '600' },
+  cidadeChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
+  cidadeChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+    borderRadius: 18,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  cidadeChipActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  cidadeChipText: { color: Colors.textWhite, fontWeight: '500' },
+  cidadeChipTextActive: { color: '#FFFFFF', fontWeight: '700' },
+  cidadeEmpty: { color: Colors.textGray, fontStyle: 'italic', paddingVertical: 4 },
+  observacoesInput: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    color: Colors.textWhite,
+    minHeight: 96,
+  },
   cidadeRow: {
     flexDirection: 'row',
     alignItems: 'center',
