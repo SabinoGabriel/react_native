@@ -40,7 +40,9 @@ export default function PerfilMenuScreen() {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      if (auth) {
+        await signOut(auth);
+      }
       router.replace('/login');
     } catch (error) {
       console.error("Erro ao sair:", error);

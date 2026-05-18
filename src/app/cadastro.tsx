@@ -71,6 +71,11 @@ export default function CadastroScreen() {
     }
 
     if (valido) {
+      if (!auth || !db) {
+        Alert.alert('Firebase nao configurado', 'Crie um arquivo .env com as variaveis EXPO_PUBLIC_FIREBASE_* para habilitar o cadastro.');
+        return;
+      }
+
       setLoading(true);
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), senha);

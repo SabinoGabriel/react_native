@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { Auth, getAuth } from 'firebase/auth';
+import { Firestore, getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -13,7 +13,24 @@ const firebaseConfig = {
 };
 
 // Evita inicializar múltiplas instâncias em hot reload
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+export const isFirebaseConfigured = Boolean(
+  firebaseConfig.apiKey &&
+    firebaseConfig.authDomain &&
+    firebaseConfig.projectId &&
+    firebaseConfig.appId,
+);
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+const app = isFirebaseConfigured
+  ? getApps().length === 0
+    ? initializeApp(firebaseConfig)
+    : getApp()
+  : null;
+
+if (!isFirebaseConfigured) {
+  console.warn(
+    'Firebase nao configurado. Crie um arquivo .env com as variaveis EXPO_PUBLIC_FIREBASE_* para habilitar autenticacao.',
+  );
+}
+
+export const auth: Auth | null = app ? getAuth(app) : null;
+export const db: Firestore | null = app ? getFirestore(app) : null;

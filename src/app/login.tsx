@@ -69,6 +69,11 @@ export default function LoginScreen() {
     }
 
     if (valido) {
+      if (!auth) {
+        Alert.alert('Firebase nao configurado', 'Crie um arquivo .env com as variaveis EXPO_PUBLIC_FIREBASE_* para habilitar o login.');
+        return;
+      }
+
       setLoading(true);
       try {
         await signInWithEmailAndPassword(auth, email.trim(), senha);
