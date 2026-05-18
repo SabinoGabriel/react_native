@@ -14,10 +14,10 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import StarRating from '../components/ui/StarRating';
-import { Colors } from '../constants/Colors';
-import { minhasAvaliacoes, Avaliacao } from '../data/mockAvaliacoes';
-import { useResponsive } from '../utils/responsive';
+import StarRating from '../../components/ui/StarRating';
+import { Colors } from '../../constants/Colors';
+import { minhasAvaliacoes, Avaliacao } from '../../data/mockAvaliacoes';
+import { useResponsive } from '../../utils/responsive';
 
 export default function AvaliacoesScreen() {
   const router = useRouter();
@@ -28,7 +28,6 @@ export default function AvaliacoesScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editMode, setEditMode] = useState(false);
 
-  // Nova avaliação state
   const [novaNota, setNovaNota] = useState(1);
   const [novaCidade, setNovaCidade] = useState('');
   const [novoEstado, setNovoEstado] = useState('');
@@ -80,7 +79,6 @@ export default function AvaliacoesScreen() {
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* User summary */}
         <Text style={[styles.userName, { fontSize: r.font(20) }]}>Isabella Arruda</Text>
         <View style={styles.divider} />
         <Text style={[styles.stat, { fontSize: r.font(15) }]}>
@@ -100,7 +98,6 @@ export default function AvaliacoesScreen() {
         </View>
         <View style={styles.divider} />
 
-        {/* Avaliações list */}
         {avaliacoes.map((av) => (
           <View key={av.id} style={styles.card}>
             <View style={styles.cardHeader}>
@@ -131,7 +128,6 @@ export default function AvaliacoesScreen() {
         ))}
       </ScrollView>
 
-      {/* Add Avaliação Modal */}
       <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
@@ -240,7 +236,6 @@ const styles = StyleSheet.create({
   cardDivider: { height: 1, backgroundColor: 'rgba(255,255,255,0.15)', marginVertical: 10 },
   cardComentario: { color: Colors.textWhite },
   deleteBtn: { position: 'absolute', right: 12, bottom: 12 },
-  // Modal
   modalOverlay: {
     flex: 1,
     justifyContent: 'flex-end',

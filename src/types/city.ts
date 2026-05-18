@@ -4,7 +4,10 @@ export type CityCategory =
   | 'Cultura'
   | 'Natureza'
   | 'Vida Noturna'
-  | 'Eventos';
+  | 'Eventos'
+  | 'Histórico'
+  | 'Aventura'
+  | 'Ecoturismo';
 
 export type QuickInfo = {
   id: string;

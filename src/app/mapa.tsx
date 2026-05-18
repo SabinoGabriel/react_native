@@ -1,4 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   StyleSheet,
@@ -15,6 +16,7 @@ import { useResponsive } from '../utils/responsive';
 const FILTER_TIPOS = ['Urbano', 'Rural', 'Populoso'];
 
 export default function MapaScreen() {
+  const router = useRouter();
   const r = useResponsive();
   const insets = useSafeAreaInsets();
   const [filtroAtivo, setFiltroAtivo] = useState('Urbano');
@@ -26,6 +28,12 @@ export default function MapaScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Search & filters */}
       <View style={[styles.topBar, { paddingTop: r.scaleY(8) }]}>
+        <View style={styles.mapHeader}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+            <MaterialIcons name="arrow-back" size={22} color={Colors.textDark} />
+          </TouchableOpacity>
+          <Text style={[styles.mapHeaderTitle, { fontSize: r.font(16) }]}>Explorar Mapa</Text>
+        </View>
         <View style={styles.searchBar}>
           <TextInput
             style={[styles.searchInput, { fontSize: r.font(14) }]}
@@ -117,6 +125,21 @@ export default function MapaScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F0F0F0' },
+  mapHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 10,
+  },
+  backBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mapHeaderTitle: { color: Colors.textDark, fontWeight: '700' },
   topBar: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,

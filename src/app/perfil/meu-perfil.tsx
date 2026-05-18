@@ -10,9 +10,9 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors } from '../constants/Colors';
-import { useResponsive } from '../utils/responsive';
-import { useAuth } from '../context/AuthContext';
+import { Colors } from '../../constants/Colors';
+import { useResponsive } from '../../utils/responsive';
+import { useAuth } from '../../context/AuthContext';
 
 type InfoRowProps = { label: string; value: string };
 function InfoRow({ label, value }: InfoRowProps) {
@@ -66,7 +66,7 @@ export default function MeuPerfilScreen() {
         <Text style={[styles.name, { fontSize: r.font(24) }]}>{userData?.nome || 'Usuário'}</Text>
 
         {/* Edit button */}
-        <TouchableOpacity style={styles.editBtn} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.editBtn} activeOpacity={0.8} onPress={() => router.push('/perfil/editar-perfil')}>
           <MaterialIcons name="edit" size={18} color={Colors.primary} />
           <Text style={[styles.editBtnText, { fontSize: r.font(14) }]}>Editar Perfil</Text>
         </TouchableOpacity>
@@ -83,7 +83,7 @@ export default function MeuPerfilScreen() {
         {/* Requisitos */}
         <View style={styles.requisitosHeader}>
           <Text style={[styles.requisitosTitle, { fontSize: r.font(18) }]}>Meus Requisitos</Text>
-          <TouchableOpacity style={styles.editSmallBtn} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.editSmallBtn} activeOpacity={0.8} onPress={() => router.push('/perfil/preferencias')}>
             <MaterialIcons name="edit" size={15} color={Colors.textGray} />
             <Text style={[styles.editSmallText, { fontSize: r.font(12) }]}>EDITAR</Text>
           </TouchableOpacity>

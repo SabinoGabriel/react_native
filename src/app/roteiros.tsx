@@ -63,8 +63,18 @@ export default function RoteirosScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      {/* Header */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: r.scaleY(12), paddingBottom: 8 }}>
+        <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 16 }}>
+          <MaterialIcons name="arrow-back" size={24} color={Colors.textWhite} />
+        </TouchableOpacity>
+        <Text style={{ color: Colors.textWhite, fontSize: r.font(20), fontWeight: '700' }}>
+          Roteiros Recomendados
+        </Text>
+      </View>
+
       {/* Search bar */}
-      <View style={[styles.searchWrapper, { paddingTop: r.scaleY(12) }]}>
+      <View style={[styles.searchWrapper, { paddingTop: r.scaleY(8) }]}>
         <View style={styles.searchBar}>
           <TextInput
             style={[styles.searchInput, { fontSize: r.font(14) }]}

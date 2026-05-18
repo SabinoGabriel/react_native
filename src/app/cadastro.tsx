@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, Alert, ActivityIndicator } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../services/firebase';
 import AuthLinkAction from '../components/auth/components/AuthLinkAction';
@@ -11,13 +11,11 @@ import FormField from '../components/auth/components/FormField';
 import CustomInput from '../components/ui/CustomInput';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import { Colors } from '../constants/Colors';
-import { useAuth } from '../context/AuthContext';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function CadastroScreen() {
   const router = useRouter();
-  const { refreshUserData } = useAuth();
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -89,10 +87,12 @@ export default function CadastroScreen() {
           requisitos: ['Média', '1-3 dias'] // Padrões iniciais
         });
 
-        // Força a atualização imediata dos dados do perfil no estado do contexto global
-        await refreshUserData(user.uid);
+        // O Firebase loga o usuário automaticamente após createUserWithEmailAndPassword.
+        // Fazemos signOut imediatamente para forçar o fluxo manual de login,
+        // garantindo que o usuário passe pela tela de login e depois pelo onboarding.
+        await signOut(auth);
 
-        router.replace('/home');
+        router.replace('/login');
       } catch (error: any) {
         console.error(error);
         let mensagem = 'Erro ao criar conta. Tente novamente.';

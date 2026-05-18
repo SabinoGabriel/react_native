@@ -1,6 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -10,10 +9,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors } from '../constants/Colors';
-import { useResponsive } from '../utils/responsive';
-import { useAuth } from '../context/AuthContext';
-import { auth } from '../services/firebase';
+import { Colors } from '../../constants/Colors';
+import { useResponsive } from '../../utils/responsive';
+import { useAuth } from '../../context/AuthContext';
+import { auth } from '../../services/firebase';
 import { signOut } from 'firebase/auth';
 
 type MenuItemProps = {
@@ -45,7 +44,7 @@ export default function PerfilMenuScreen() {
       }
       router.replace('/login');
     } catch (error) {
-      console.error("Erro ao sair:", error);
+      console.error('Erro ao sair:', error);
     }
   };
 
@@ -59,6 +58,14 @@ export default function PerfilMenuScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: r.scaleY(8) }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <MaterialIcons name="arrow-back" size={24} color={Colors.textWhite} />
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, { fontSize: r.font(20) }]}>Perfil</Text>
+      </View>
+
       <ScrollView
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
         showsVerticalScrollIndicator={false}
@@ -73,11 +80,11 @@ export default function PerfilMenuScreen() {
 
         <View style={styles.divider} />
 
-        <MenuItem icon="person-outline" label="Meu Perfil" onPress={() => router.push('/meu-perfil')} />
-        <MenuItem icon="bookmark-border" label="Roteiros Favoritos" onPress={() => router.push('/roteiros-favoritos')} />
-        <MenuItem icon="star-border" label="Minhas Avaliações" onPress={() => router.push('/avaliacoes')} />
-        <MenuItem icon="auto-awesome" label="Preferências" onPress={() => {}} />
-        <MenuItem icon="settings" label="Configurações" onPress={() => router.push('/configuracoes')} />
+        <MenuItem icon="person-outline" label="Meu Perfil" onPress={() => router.push('/perfil/meu-perfil')} />
+        <MenuItem icon="bookmark-border" label="Roteiros Favoritos" onPress={() => router.push('/perfil/roteiros-favoritos')} />
+        <MenuItem icon="star-border" label="Minhas Avaliações" onPress={() => router.push('/perfil/avaliacoes')} />
+        <MenuItem icon="auto-awesome" label="Preferências" onPress={() => router.push('/perfil/preferencias')} />
+        <MenuItem icon="settings" label="Configurações" onPress={() => router.push('/perfil/configuracoes')} />
         <MenuItem icon="logout" label="Sair da conta" onPress={handleLogout} />
       </ScrollView>
     </SafeAreaView>
@@ -86,7 +93,15 @@ export default function PerfilMenuScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  content: { paddingHorizontal: 28, paddingTop: 32 },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 12,
+  },
+  backBtn: { marginRight: 12 },
+  headerTitle: { color: Colors.textWhite, fontWeight: '700' },
+  content: { paddingHorizontal: 28, paddingTop: 16 },
   topRow: { marginBottom: 12 },
   avatar: {
     width: 90,

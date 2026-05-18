@@ -9,8 +9,8 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors } from '../constants/Colors';
-import { useResponsive } from '../utils/responsive';
+import { Colors } from '../../constants/Colors';
+import { useResponsive } from '../../utils/responsive';
 
 type SettingItemProps = {
   icon: keyof typeof MaterialIcons.glyphMap;

@@ -10,9 +10,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors } from '../constants/Colors';
-import { roteirosFavoritos, Roteiro } from '../data/mockRoteiros';
-import { useResponsive } from '../utils/responsive';
+import { Colors } from '../../constants/Colors';
+import { roteirosFavoritos, Roteiro } from '../../data/mockRoteiros';
+import { useResponsive } from '../../utils/responsive';
 
 function FavoritoCard({ roteiro }: { roteiro: Roteiro }) {
   const r = useResponsive();
@@ -80,7 +80,6 @@ export default function RoteirosFavoritosScreen() {
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Meus Roteiros banner */}
         <TouchableOpacity style={styles.meusRoteirosBanner} activeOpacity={0.8}>
           <View style={{ flex: 1 }}>
             <Text style={[styles.bannerTitle, { fontSize: r.font(20) }]}>Meus Roteiros</Text>
@@ -91,7 +90,6 @@ export default function RoteirosFavoritosScreen() {
           <Text style={[styles.bannerLink, { fontSize: r.font(13) }]}>Ver detalhes ▶</Text>
         </TouchableOpacity>
 
-        {/* Favorited itineraries */}
         {filtrados.map((rt) => (
           <FavoritoCard key={rt.id} roteiro={rt} />
         ))}

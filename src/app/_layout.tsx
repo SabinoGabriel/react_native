@@ -19,15 +19,18 @@ export default function RootLayout() {
         <Stack.Screen name="redefinir" />
         <Stack.Screen name="verificacao" />
         <Stack.Screen name="home" />
-        <Stack.Screen name="perfil" />
-        <Stack.Screen name="meu-perfil" />
-        <Stack.Screen name="avaliacoes" />
         <Stack.Screen name="roteiros" />
-        <Stack.Screen name="roteiros-favoritos" />
-        <Stack.Screen name="criar-roteiro" />
         <Stack.Screen name="mapa" />
+        <Stack.Screen name="criar-roteiro" />
         <Stack.Screen name="detalhes-cidade" />
-        <Stack.Screen name="configuracoes" />
+        <Stack.Screen name="city-details" />
+        <Stack.Screen name="perfil" />
+        <Stack.Screen name="perfil/meu-perfil" />
+        <Stack.Screen name="perfil/editar-perfil" />
+        <Stack.Screen name="perfil/preferencias" />
+        <Stack.Screen name="perfil/avaliacoes" />
+        <Stack.Screen name="perfil/roteiros-favoritos" />
+        <Stack.Screen name="perfil/configuracoes" />
       </Stack>
     </AuthProvider>
   );
