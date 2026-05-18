@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   fieldWrapper: { alignSelf: 'stretch', marginBottom: 20 },
   fieldLabel: { color: Colors.textWhite, fontWeight: '700', marginBottom: 8 },
   fieldInput: {
-    color: Colors.textWhite,
+    color: Colors.textDark,
     backgroundColor: Colors.inputBackground,
     borderRadius: 12,
     paddingHorizontal: 16,
