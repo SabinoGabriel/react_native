@@ -9,7 +9,7 @@ const SPLASH_MS = 3000;
 
 export default function SplashScreen() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, userData, loading } = useAuth();
   const [splashDone, setSplashDone] = useState(false);
 
   useEffect(() => {
@@ -20,17 +20,26 @@ export default function SplashScreen() {
   useEffect(() => {
     if (!splashDone) return;
 
-    // Modo desenvolvimento: sem Firebase nao ha sessao para checar, vai direto pro login.
+    // Modo desenvolvimento: sem Firebase nao ha sessao para checar.
     if (!isFirebaseConfigured) {
       router.replace('/login');
       return;
     }
 
-    // Com Firebase: espera AuthContext terminar de carregar antes de decidir a rota.
+    // Com Firebase: espera AuthContext terminar de carregar (userData inclusive).
     if (loading) return;
 
-    router.replace(user ? '/home' : '/login');
-  }, [splashDone, loading, user, router]);
+    if (!user) {
+      router.replace('/login');
+      return;
+    }
+
+    if (userData?.preferenciasConcluidas === true) {
+      router.replace('/home');
+    } else {
+      router.replace('/perfil/preferencias');
+    }
+  }, [splashDone, loading, user, userData, router]);
 
   return <SplashLogoScreen logoSource={Logo} />;
 }

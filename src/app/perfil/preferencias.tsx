@@ -1,16 +1,26 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { doc, updateDoc } from 'firebase/firestore';
 import { Colors } from '../../constants/Colors';
 import { useResponsive } from '../../utils/responsive';
+import { useAuth } from '../../context/AuthContext';
+import { auth, db, isFirebaseConfigured } from '../../services/firebase';
 
 const CLIMA_OPTIONS = ['Quente', 'Temperado', 'Frio', 'Qualquer'];
 const DURACAO_OPTIONS = ['1 dia', '2-3 dias', '4-7 dias', '7+ dias'];
 const ESTILO_OPTIONS = ['Aventura', 'Cultural', 'Gastronomia', 'Relaxamento', 'Ecoturismo'];
 
-function ChipGroup({ title, options, selected }: { title: string; options: string[]; selected: string[] }) {
+type ChipGroupProps = {
+  title: string;
+  options: string[];
+  selected: string[];
+  onToggle: (value: string) => void;
+};
+
+function ChipGroup({ title, options, selected, onToggle }: ChipGroupProps) {
   const r = useResponsive();
   return (
     <View style={styles.group}>
@@ -19,14 +29,16 @@ function ChipGroup({ title, options, selected }: { title: string; options: strin
         {options.map((opt) => {
           const active = selected.includes(opt);
           return (
-            <View
+            <TouchableOpacity
               key={opt}
               style={[styles.chip, active && styles.chipActive]}
+              onPress={() => onToggle(opt)}
+              activeOpacity={0.7}
             >
               <Text style={[styles.chipText, { fontSize: r.font(14) }, active && styles.chipTextActive]}>
                 {opt}
               </Text>
-            </View>
+            </TouchableOpacity>
           );
         })}
       </View>
@@ -34,10 +46,65 @@ function ChipGroup({ title, options, selected }: { title: string; options: strin
   );
 }
 
+function toggleIn(list: string[], value: string): string[] {
+  return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
+}
+
 export default function PreferenciasScreen() {
   const router = useRouter();
   const r = useResponsive();
   const insets = useSafeAreaInsets();
+  const { user, userData, refreshUserData } = useAuth();
+
+  const [clima, setClima] = useState<string[]>([]);
+  const [duracao, setDuracao] = useState<string[]>([]);
+  const [estilo, setEstilo] = useState<string[]>([]);
+  const [salvando, setSalvando] = useState(false);
+
+  useEffect(() => {
+    const prefs = (userData?.preferencias ?? {}) as {
+      clima?: string[];
+      duracao?: string[];
+      estilo?: string[];
+    };
+    if (prefs.clima?.length) setClima(prefs.clima);
+    if (prefs.duracao?.length) setDuracao(prefs.duracao);
+    if (prefs.estilo?.length) setEstilo(prefs.estilo);
+  }, [userData]);
+
+  async function handleSalvar() {
+    if (clima.length === 0 || duracao.length === 0 || estilo.length === 0) {
+      Alert.alert('Atenção', 'Selecione pelo menos uma opção em cada grupo.');
+      return;
+    }
+
+    const preferencias = { clima, duracao, estilo };
+
+    // Modo desenvolvimento: sem Firebase, simula a gravacao e segue para /home.
+    if (!isFirebaseConfigured || !auth || !db || !user) {
+      Alert.alert(
+        'Modo desenvolvimento',
+        'Preferências simuladas. Nada foi salvo no Firebase.',
+        [{ text: 'OK', onPress: () => router.replace('/home') }],
+      );
+      return;
+    }
+
+    setSalvando(true);
+    try {
+      await updateDoc(doc(db, 'usuarios', user.uid), {
+        preferenciasConcluidas: true,
+        preferencias,
+      });
+      await refreshUserData();
+      router.replace('/home');
+    } catch (error: any) {
+      console.error('[preferencias]', error);
+      Alert.alert('Erro', 'Não foi possível salvar suas preferências. Tente novamente.');
+    } finally {
+      setSalvando(false);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -56,12 +123,34 @@ export default function PreferenciasScreen() {
           Personalize suas preferências para receber roteiros mais adequados ao seu perfil.
         </Text>
 
-        <ChipGroup title="Clima Preferido" options={CLIMA_OPTIONS} selected={['Temperado']} />
-        <ChipGroup title="Duração da Viagem" options={DURACAO_OPTIONS} selected={['2-3 dias']} />
-        <ChipGroup title="Estilo de Viagem" options={ESTILO_OPTIONS} selected={['Cultural', 'Gastronomia']} />
+        <ChipGroup
+          title="Clima Preferido"
+          options={CLIMA_OPTIONS}
+          selected={clima}
+          onToggle={(v) => setClima((prev) => toggleIn(prev, v))}
+        />
+        <ChipGroup
+          title="Duração da Viagem"
+          options={DURACAO_OPTIONS}
+          selected={duracao}
+          onToggle={(v) => setDuracao((prev) => toggleIn(prev, v))}
+        />
+        <ChipGroup
+          title="Estilo de Viagem"
+          options={ESTILO_OPTIONS}
+          selected={estilo}
+          onToggle={(v) => setEstilo((prev) => toggleIn(prev, v))}
+        />
 
-        <TouchableOpacity style={[styles.saveBtn, { marginTop: r.scaleY(8) }]} activeOpacity={0.85}>
-          <Text style={[styles.saveBtnText, { fontSize: r.font(16) }]}>Salvar Preferências</Text>
+        <TouchableOpacity
+          style={[styles.saveBtn, { marginTop: r.scaleY(8) }, salvando && { opacity: 0.6 }]}
+          activeOpacity={0.85}
+          onPress={handleSalvar}
+          disabled={salvando}
+        >
+          <Text style={[styles.saveBtnText, { fontSize: r.font(16) }]}>
+            {salvando ? 'Salvando...' : 'Salvar Preferências'}
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
