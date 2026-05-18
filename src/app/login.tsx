@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, ActivityIndicator, Alert } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../services/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, db, isFirebaseConfigured } from '../services/firebase';
 import AuthLinkAction from '../components/auth/components/AuthLinkAction';
 import AuthScreenLayout from '../components/auth/components/AuthScreenLayout';
 import FormField from '../components/auth/components/FormField';
@@ -25,10 +26,12 @@ export default function LoginScreen() {
   const [lembrar, setLembrar] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [toastMessage, setToastMessage] = useState('Usuário ou senha inválidos.');
   const toastOpacity = useRef(new Animated.Value(0)).current;
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function showToast() {
+  function showToast(message?: string) {
+    if (message) setToastMessage(message);
     if (toastTimer.current) clearTimeout(toastTimer.current);
     Animated.sequence([
       Animated.timing(toastOpacity, { toValue: 1, duration: 250, useNativeDriver: true }),
@@ -44,13 +47,14 @@ export default function LoginScreen() {
   }, []);
 
   async function handleLogin() {
+    // 1. Validacao local — nao chama Firebase se algo falhar aqui
     let valido = true;
-    const emailValido = EMAIL_REGEX.test(email.trim());
+    const emailTrim = email.trim();
 
-    if (!email.trim()) {
+    if (!emailTrim) {
       setErroEmail('O e-mail é obrigatório.');
       valido = false;
-    } else if (!emailValido) {
+    } else if (!EMAIL_REGEX.test(emailTrim)) {
       setErroEmail('Informe um e-mail válido.');
       valido = false;
     } else {
@@ -60,34 +64,87 @@ export default function LoginScreen() {
     if (!senha) {
       setErroSenha('A senha é obrigatória.');
       valido = false;
-    } else if (emailValido && senha.length < 6) {
-      setErroSenha('');
-      showToast();
-      return;
+    } else if (senha.length < 6) {
+      setErroSenha('A senha deve ter no mínimo 6 caracteres.');
+      valido = false;
     } else {
       setErroSenha('');
     }
 
-    if (valido) {
-      if (!auth) {
-        Alert.alert('Firebase nao configurado', 'Crie um arquivo .env com as variaveis EXPO_PUBLIC_FIREBASE_* para habilitar o login.');
-        return;
+    if (!valido) return;
+
+    // 2. Modo desenvolvimento: Firebase ausente -> nao chama Auth, segue para /home
+    // para permitir testar navegacao do app sem credenciais reais.
+    if (!isFirebaseConfigured || !auth || !db) {
+      showToast('Modo desenvolvimento: Firebase não configurado.');
+      setTimeout(() => router.replace('/home'), 600);
+      return;
+    }
+
+    // 3. Fluxo real do Firebase
+    setLoading(true);
+    try {
+      const credential = await signInWithEmailAndPassword(auth, emailTrim, senha);
+      const user = credential.user;
+
+      const userRef = doc(db, 'usuarios', user.uid);
+      const snap = await getDoc(userRef);
+
+      let preferenciasConcluidas = false;
+      if (snap.exists()) {
+        const data = snap.data() as { preferenciasConcluidas?: boolean };
+        preferenciasConcluidas = data.preferenciasConcluidas === true;
+      } else {
+        await setDoc(userRef, {
+          nome: '',
+          email: user.email,
+          createdAt: new Date().toISOString(),
+          preferenciasConcluidas: false,
+          preferencias: {},
+        });
       }
 
-      setLoading(true);
-      try {
-        await signInWithEmailAndPassword(auth, email.trim(), senha);
+      if (preferenciasConcluidas) {
         router.replace('/home');
-      } catch (error: any) {
-        console.error(error);
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-          showToast();
-        } else {
-          Alert.alert('Erro', 'Ocorreu um erro ao fazer login. Tente novamente.');
-        }
-      } finally {
-        setLoading(false);
+      } else {
+        router.replace('/perfil/preferencias');
       }
+    } catch (error: any) {
+      console.error('[login]', error);
+      let mensagem = 'Erro ao fazer login. Tente novamente.';
+      let usarToast = false;
+
+      switch (error.code) {
+        case 'auth/invalid-credential':
+          mensagem = 'E-mail ou senha inválidos.';
+          usarToast = true;
+          break;
+        case 'auth/user-not-found':
+          mensagem = 'Usuário não encontrado.';
+          usarToast = true;
+          break;
+        case 'auth/wrong-password':
+          mensagem = 'Senha incorreta.';
+          usarToast = true;
+          break;
+        case 'auth/invalid-email':
+          mensagem = 'Informe um e-mail válido.';
+          break;
+        case 'auth/network-request-failed':
+          mensagem = 'Falha de conexão. Verifique sua internet.';
+          break;
+        case 'auth/too-many-requests':
+          mensagem = 'Muitas tentativas. Tente novamente mais tarde.';
+          break;
+      }
+
+      if (usarToast) {
+        showToast(mensagem);
+      } else {
+        Alert.alert('Erro', mensagem);
+      }
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -102,7 +159,7 @@ export default function LoginScreen() {
         )
       }
       footerAction={<AuthLinkAction label="Criar conta" onPress={() => router.push('/cadastro')} />}
-      overlay={<FloatingToast message="Usuário ou senha inválidos." opacity={toastOpacity} />}
+      overlay={<FloatingToast message={toastMessage} opacity={toastOpacity} />}
     >
       <FormField error={erroEmail}>
         <CustomInput

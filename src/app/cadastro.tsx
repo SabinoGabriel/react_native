@@ -4,7 +4,7 @@ import { Pressable, Alert, ActivityIndicator } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../services/firebase';
+import { auth, db, isFirebaseConfigured } from '../services/firebase';
 import AuthLinkAction from '../components/auth/components/AuthLinkAction';
 import AuthScreenLayout from '../components/auth/components/AuthScreenLayout';
 import FormField from '../components/auth/components/FormField';
@@ -69,38 +69,59 @@ export default function CadastroScreen() {
     }
 
     if (valido) {
-      if (!auth || !db) {
-        Alert.alert('Firebase nao configurado', 'Crie um arquivo .env com as variaveis EXPO_PUBLIC_FIREBASE_* para habilitar o cadastro.');
+      // Modo desenvolvimento: Firebase ausente -> nao chama Auth/Firestore,
+      // simula o cadastro e volta para /login para permitir testar a navegacao.
+      if (!isFirebaseConfigured || !auth || !db) {
+        Alert.alert(
+          'Modo desenvolvimento',
+          'Cadastro simulado. Como o Firebase não está configurado, nenhuma conta real foi criada.',
+          [{ text: 'OK', onPress: () => router.replace('/login') }],
+        );
         return;
       }
 
       setLoading(true);
+      let contaCriada = false;
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), senha);
         const user = userCredential.user;
+        contaCriada = true;
 
-        // Salvar dados adicionais no Firestore
         await setDoc(doc(db, 'usuarios', user.uid), {
           nome: nome.trim(),
           email: email.trim(),
           createdAt: new Date().toISOString(),
-          requisitos: ['Média', '1-3 dias'] // Padrões iniciais
+          preferenciasConcluidas: false,
+          preferencias: {},
         });
 
-        // O Firebase loga o usuário automaticamente após createUserWithEmailAndPassword.
-        // Fazemos signOut imediatamente para forçar o fluxo manual de login,
-        // garantindo que o usuário passe pela tela de login e depois pelo onboarding.
+        // createUserWithEmailAndPassword loga automaticamente; saimos para forcar o fluxo
+        // de login manual e cair no onboarding de preferencias depois.
         await signOut(auth);
 
         router.replace('/login');
       } catch (error: any) {
-        console.error(error);
+        console.error('[cadastro]', error);
         let mensagem = 'Erro ao criar conta. Tente novamente.';
-        if (error.code === 'auth/email-already-in-use') {
+
+        if (contaCriada) {
+          // Conta criada no Auth mas Firestore falhou
+          mensagem =
+            'Sua conta foi criada, mas nao foi possivel salvar seu perfil. ' +
+            'Verifique as Regras do Firestore (colecao "usuarios") e tente fazer login.';
+          // Garante que nao fique logado num estado inconsistente
+          try { await signOut(auth); } catch {}
+          router.replace('/login');
+        } else if (error.code === 'auth/email-already-in-use') {
           mensagem = 'Este e-mail já está em uso.';
-        } else if (error.code === 'permission-denied' || error.message?.includes('permission')) {
-          mensagem = 'Erro de permissão no Firebase. Certifique-se de configurar as Regras do Firestore no Firebase Console para permitir escrita na coleção "usuarios".';
+        } else if (error.code === 'auth/invalid-email') {
+          mensagem = 'Informe um e-mail válido.';
+        } else if (error.code === 'auth/weak-password') {
+          mensagem = 'A senha precisa ter pelo menos 6 caracteres.';
+        } else if (error.code === 'auth/network-request-failed') {
+          mensagem = 'Falha de conexão. Verifique sua internet.';
         }
+
         Alert.alert('Erro', mensagem);
       } finally {
         setLoading(false);

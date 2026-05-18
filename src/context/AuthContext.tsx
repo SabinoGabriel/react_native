@@ -8,6 +8,8 @@ interface UserData {
   email: string;
   telefone?: string;
   dataNascimento?: string;
+  preferenciasConcluidas?: boolean;
+  preferencias?: Record<string, unknown>;
   requisitos?: string[];
 }
 
