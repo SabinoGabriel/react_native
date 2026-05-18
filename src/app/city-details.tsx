@@ -31,7 +31,7 @@ import type {
   RecommendedPlace,
   Restaurant,
 } from '../types/city';
-import Colors from '@/constants/Colors'; 
+import { Colors } from '../constants/Colors';
 
 type CityDetailsParams = {
   cityId?: string;
