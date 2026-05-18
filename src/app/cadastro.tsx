@@ -75,7 +75,8 @@ export default function CadastroScreen() {
 
     if (!valido) return;
 
-    // 2. Modo desenvolvimento: sem Firebase, simula cadastro e volta para /login.
+    // DEV_FALLBACK: remove after Firebase integration is complete.
+    // Modo desenvolvimento: sem Firebase, simula cadastro e volta para /login.
     // Importante: no React Native Web o callback do botao do Alert nao dispara,
     // entao navegamos antes/independente do Alert.
     if (!isFirebaseConfigured || !auth || !db) {

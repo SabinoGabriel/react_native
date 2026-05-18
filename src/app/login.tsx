@@ -73,7 +73,8 @@ export default function LoginScreen() {
 
     if (!valido) return;
 
-    // 2. Modo desenvolvimento: Firebase ausente -> nao chama Auth, segue para /home
+    // DEV_FALLBACK: remove after Firebase integration is complete.
+    // Modo desenvolvimento: Firebase ausente -> nao chama Auth, segue para /home
     // para permitir testar navegacao do app sem credenciais reais.
     if (!isFirebaseConfigured || !auth || !db) {
       showToast('Modo desenvolvimento: Firebase não configurado.');

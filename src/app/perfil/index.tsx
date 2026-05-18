@@ -43,6 +43,8 @@ export default function PerfilMenuScreen() {
       if (auth) {
         await signOut(auth);
       }
+      // DEV_FALLBACK: remove after Firebase integration is complete.
+      // Quando auth e null (sem Firebase), pulamos signOut e so navegamos.
       router.replace('/login');
     } catch (error) {
       console.error('Erro ao sair:', error);

@@ -20,6 +20,7 @@ export default function SplashScreen() {
   useEffect(() => {
     if (!splashDone) return;
 
+    // DEV_FALLBACK: remove after Firebase integration is complete.
     // Modo desenvolvimento: sem Firebase nao ha sessao para checar.
     if (!isFirebaseConfigured) {
       router.replace('/login');

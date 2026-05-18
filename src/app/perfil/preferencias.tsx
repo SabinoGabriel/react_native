@@ -80,6 +80,7 @@ export default function PreferenciasScreen() {
 
     const preferencias = { clima, duracao, estilo };
 
+    // DEV_FALLBACK: remove after Firebase integration is complete.
     // Modo desenvolvimento: sem Firebase, simula a gravacao e segue para /home.
     // No React Native Web o callback do botao do Alert nao dispara, entao
     // navegamos independente do Alert.
